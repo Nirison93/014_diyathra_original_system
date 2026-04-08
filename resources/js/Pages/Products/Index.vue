@@ -14,14 +14,40 @@
           </button>
           <h1 class="text-4xl font-bold text-gray-800">Products</h1>
         </div>
-        <!-- Add New Product Button -->
-        <button
-          @click="openCreateModal"
-          class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all duration-300"
-        >
-          + Add Product
-        </button>
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+          <!-- Add GRN Button -->
+          <button
+            @click="$inertia.visit(route('good-receive-notes.create'))"
+            class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-green-600 text-white hover:bg-green-700 hover:scale-105 transition-all duration-300"
+          >
+            📦 Add GRN
+          </button>
+          <!-- Add New Product Button -->
+          <button
+            @click="openCreateModal"
+            class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all duration-300"
+          >
+            + Add Product
+          </button>
+        </div>
       </div>
+
+      <!-- Information Banner -->
+      <!-- <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-lg p-4 shadow-sm">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 100-2 1 1 0 000 2zm4 0a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+          </svg>
+          <div>
+            <p class="font-semibold text-blue-900">💡 Stock Management Reminder</p>
+            <p class="text-sm text-blue-800 mt-1">
+              All product stock is managed exclusively through GRN (Goods Received Notes). 
+              To add stock to a product, use the <strong class="underline">📦 Add GRN</strong> button above.
+            </p>
+          </div>
+        </div>
+      </div> -->
 
       <!-- Live Search -->
       <div class="mb-4">
@@ -121,40 +147,28 @@
               </td>
               <!-- Quantity -->
               <td class="px-4 py-4 text-center">
-              <div class="space-y-1">
-                <!-- Shop Quantities in Sales Unit (Primary Display) -->
-                <div class="flex flex-col gap-1">
-                  <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold text-xs">
-                    <span class="font-semibold">Shop ({{ product.sales_unit?.symbol || 'Unit' }}):</span>
-                    <span>{{ Number(product.shop_quantity_in_sales_unit || 0).toFixed(0) }}</span>
-                  </span>
-                </div>
-                
-                <!-- Store Quantities -->
-                <div class="flex flex-col gap-1">
-                  <!-- Full Boxes (Purchase Unit) -->
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                    <span class="text-[10px] font-semibold">Store ({{ product.purchase_unit?.symbol || 'Box' }}):</span>
-                    <span>{{ product.store_quantity_in_purchase_unit }}</span>
-                  </span>
-                  
-                  <!-- Loose Bundles (from opened boxes) -->
-                 <span v-if="Number(product.loose_bundles) > 0" 
-                    class="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                    <span class="text-[10px] font-semibold">
-                      + Loose ({{ product.transfer_unit?.symbol || 'Bundle' }}):
+                <div class="flex flex-col gap-2">
+                  <!-- Stock Quantity Badge -->
+                  <div class="inline-flex items-center justify-center">
+                    <span class="relative inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-full font-bold text-sm text-emerald-700 shadow-sm hover:shadow-md transition-shadow">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.894 2.553a.889.889 0 00-1.788 0l-.412 2.463H6.781a.889.889 0 000 1.778h2.354l-1.06 6.36H5.228a.889.889 0 000 1.778h2.073l-.412 2.463a.889.889 0 101.788 0l.412-2.463h3.812l-.412 2.463a.889.889 0 101.788 0l.412-2.463h2.073a.889.889 0 100-1.778h-2.354l1.06-6.36h2.354a.889.889 0 100-1.778h-2.073l.412-2.463a.889.889 0 10-1.788 0l-.412 2.463h-3.812l.412-2.463zm1.06 7.138l1.06-6.36H9.894l-1.06 6.36h3.12z"/>
+                      </svg>
+                      <span>{{ Number(product.shop_quantity || 0).toFixed(0) }}</span>
+                      <span class="text-xs font-normal opacity-75">{{ product.sales_unit?.symbol || 'Unit' }}</span>
                     </span>
-                    <span>{{ product.loose_bundles }}</span>
-                  </span>
-
-                  <!-- Total Store Quantity in Sales Unit -->
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">
-                    <span class="text-[10px] font-semibold">Loose  ({{ product.sales_unit?.symbol || 'Unit' }}):</span>
-                    <span>{{ product.store_quantity_in_sale_unit }}</span>
-                  </span>
-
+                  </div>
+                  
+                  <!-- Minimum Stock Threshold -->
+                  <div class="inline-flex items-center justify-center">
+                    <span class="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-full text-xs font-semibold text-orange-700 shadow-sm">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 15.838 5.5H16a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V7h-.75a4.5 4.5 0 110 9h.75v-1.5a.75.75 0 011.5 0v1.5a.75.75 0 01-.75.75h-.162z" clip-rule="evenodd"/>
+                      </svg>Low
+                      {{ product.shop_low_stock_margin || 0 }}
+                    </span>
+                  </div>
                 </div>
-              </div>
               </td>
               <!-- Product Status Badge -->
               <td class="px-4 py-4 text-center">

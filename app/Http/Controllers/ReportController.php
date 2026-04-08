@@ -1432,17 +1432,12 @@ class ReportController extends Controller
      */
     public function stockReport()
     {
-        $productsStock = Product::with(['salesUnit', 'purchaseUnit'])
+        $productsStock = Product::with(['salesUnit'])
             ->select(
                 'id',
                 'name',
-                'shop_quantity_in_sales_unit',
-                'store_quantity_in_purchase_unit',
-                'store_quantity_in_transfer_unit',
-                'store_quantity_in_sale_unit',
-                'sales_unit_id',
-                'purchase_unit_id',
-                'transfer_unit_id'
+                'shop_quantity',
+                'sales_unit_id'
             )
             ->orderBy('name')
             ->paginate(10)
@@ -1451,24 +1446,12 @@ class ReportController extends Controller
         // Transform the paginated collection
         $productsStock->getCollection()->transform(function ($item) {
             $shopUnit = $item->salesUnit ? $item->salesUnit->name : '';
-            $storeUnit = $item->purchaseUnit ? $item->purchaseUnit->name : '';
-            $transferUnit = $item->transferUnit ? $item->transferUnit->name : '';
-             $rawTransferQty = $item->getAttributes()['store_quantity_in_transfer_unit'] ?? 0;
-             $rawSalesQty = $item->getAttributes()['store_quantity_in_sale_unit'] ?? 0;
 
             return [
                 'id' => $item->id,
                 'name' => $item->name,
-                'shop_quantity' => $item->shop_quantity_in_sales_unit,
-                'store_quantity' => $item->store_quantity_in_purchase_unit,
-                'transfer_quantity' => $item->store_quantity_in_transfer_unit, // calculated
-                'raw_transfer_quantity' => $rawTransferQty, // raw DB value
-                'loose_bundles' => $rawTransferQty . ' ' . $transferUnit,
-                'loose_bottles' =>$rawSalesQty. ' ' . $shopUnit,
-                'shop_qty_display' => $item->shop_quantity_in_sales_unit . ' ' . $shopUnit,
-                'store_qty_display' => $item->store_quantity_in_purchase_unit . ' ' . $storeUnit,
-                'purchase_unit' => $item->purchaseUnit,
-                'transfer_unit' => $item->transferUnit,
+                'shop_quantity' => $item->shop_quantity,
+                'shop_qty_display' => $item->shop_quantity . ' ' . $shopUnit,
                 'sales_unit' => $item->salesUnit,
             ];
         });
@@ -2210,13 +2193,12 @@ class ReportController extends Controller
      */
     public function lowStockReport(Request $request)
     {
-        // Filters: optional date range (updated_at) and type: shop|store|both
+        // Simplified to show only low shop stock
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $filterType = $request->input('filter', 'both'); // shop, store, both
 
         $query = Product::select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'store_quantity_in_purchase_unit', 'store_low_stock_margin', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'updated_at'
             );
 
         // Apply date filter on updated_at if provided
@@ -2230,29 +2212,17 @@ class ReportController extends Controller
             }
         }
 
-        // Apply low-stock filter type
-        if ($filterType === 'shop') {
-            $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
-        } elseif ($filterType === 'store') {
-            $query->whereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
-        } else {
-            $query->where(function($q) {
-                $q->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin')
-                  ->orWhereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
-            });
-        }
+        // Show only low stock items
+        $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
 
         $products = $query->orderBy('name')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'name' => $item->name,
                 'barcode' => $item->barcode,
-                'shop_quantity' => (int) $item->shop_quantity_in_sales_unit,
+                'shop_quantity' => (int) $item->shop_quantity,
                 'shop_low_stock_margin' => (int) $item->shop_low_stock_margin,
-                'store_quantity' => (int) $item->store_quantity_in_purchase_unit,
-                'store_low_stock_margin' => (int) $item->store_low_stock_margin,
-                'shop_status' => $item->shop_quantity_in_sales_unit <= $item->shop_low_stock_margin ? 'Low' : 'OK',
-                'store_status' => $item->store_quantity_in_purchase_unit <= $item->store_low_stock_margin ? 'Low' : 'OK',
+                'status' => $item->shop_quantity <= $item->shop_low_stock_margin ? 'Low' : 'OK',
             ];
         });
 
@@ -2262,7 +2232,6 @@ class ReportController extends Controller
             'products' => $products,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'filter' => $filterType,
             'currencySymbol' => $currencySymbol,
         ]);
     }

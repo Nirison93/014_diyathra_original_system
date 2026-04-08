@@ -347,139 +347,7 @@
           </h3>
 
           <!-- Units Row -->
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <!-- Purchase Unit -->
-            <div>
-              <label class="block mb-2 text-sm font-medium text-gray-700"
-                >Purchase Unit</label
-              >
-              <div class="flex gap-2">
-                <select
-                  v-model="form.purchase_unit_id"
-                  class="flex-1 px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Unit</option>
-                  <option
-                    v-for="unit in measurementUnits"
-                    :key="unit.id"
-                    :value="unit.id"
-                  >
-                    {{ unit.name }}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  @click="openUnitModal('purchase')"
-                  class="px-3 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 flex-shrink-0"
-                  title="Add New Unit"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <span v-if="form.errors.purchase_unit_id" class="text-sm text-red-500">{{ form.errors.purchase_unit_id }}</span>
-            </div>
-
-            <!-- Transfer Unit -->
-            <div>
-              <label class="block mb-2 text-sm font-medium text-gray-700"
-                >Transfer Unit</label
-              >
-              <div class="flex gap-2">
-                <select
-                  v-model="form.transfer_unit_id"
-                  class="flex-1 px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Unit</option>
-                  <option
-                    v-for="unit in measurementUnits"
-                    :key="unit.id"
-                    :value="unit.id"
-                  >
-                    {{ unit.name }}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  @click="openUnitModal('transfer')"
-                  class="px-3 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 flex-shrink-0"
-                  title="Add New Unit"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <span v-if="form.errors.transfer_unit_id" class="text-sm text-red-500">{{ form.errors.transfer_unit_id }}</span>
-            </div>
-
-            <!-- Sales Unit -->
-            <div>
-              <label class="block mb-2 text-sm font-medium text-gray-700"
-                >Sales Unit</label
-              >
-              <div class="flex gap-2">
-                <select
-                  v-model="form.sales_unit_id"
-                  class="flex-1 px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Unit</option>
-                  <option
-                    v-for="unit in measurementUnits"
-                    :key="unit.id"
-                    :value="unit.id"
-                  >
-                    {{ unit.name }}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  @click="openUnitModal('sales')"
-                  class="px-3 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 flex-shrink-0"
-                  title="Add New Unit"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <span v-if="form.errors.sales_unit_id" class="text-sm text-red-500">{{ form.errors.sales_unit_id }}</span>
-            </div>
-          </div>
+          
 
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-3">
             <!-- Store Quantity -->
@@ -504,7 +372,7 @@
             </div> -->
 
             <!-- Store Low Stock Margin -->
-            <div>
+            <!-- <div>
               <label class="block mb-2 text-sm font-medium text-gray-700"
                 >Store Low Stock Alert
                 <span v-if="form.purchase_unit_id" class="blue-600">
@@ -522,7 +390,7 @@
               <span class="text-xs text-gray-600"
                 >Alert when store stock falls below this level</span
               >
-            </div>
+            </div> -->
           </div>
 
           <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 mt-3">
@@ -570,96 +438,6 @@
         </div>
 
         <!-- Conversion Rates Section -->
-        <div
-          class="mb-4 bg-white rounded-xl p-4 shadow-sm border border-gray-200"
-        >
-          <h3 class="mb-3 text-lg font-semibold text-purple-600 flex items-center gap-2">
-            🔄 Unit Conversion Rates
-          </h3>
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <!-- Purchase to Transfer Rate -->
-            <div>
-              <label class="block mb-2 text-sm font-medium text-gray-700">
-                Purchase → Transfer Rate
-                <span
-                  v-if="form.purchase_unit_id && form.transfer_unit_id"
-                  class="text-purple-300"
-                >
-                  (1 {{ getPurchaseUnitShortName(form.purchase_unit_id) }} = ?
-                  {{ getTransferUnitName(form.transfer_unit_id) }})
-                </span>
-              </label>
-                <input
-                  v-model="form.purchase_to_transfer_rate"
-                  type="number"
-                  step="0.01"
-                  class="w-full px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="1.00"
-                />
-              <span class="text-xs text-gray-600"
-                >Optional - How many transfer units in one purchase unit</span
-              >
-            </div>
-
-            <!-- Transfer to Sales Rate -->
-            <div>
-              <label class="block mb-2 text-sm font-medium text-gray-700">
-                Transfer → Sales Rate
-                <span
-                  v-if="form.transfer_unit_id && form.sales_unit_id"
-                  class="text-purple-300"
-                >
-                  (1 {{ getTransferUnitName(form.transfer_unit_id) }} = ?
-                  {{ getSalesUnitName(form.sales_unit_id) }})
-                </span>
-              </label>
-                <input
-                  v-model="form.transfer_to_sales_rate"
-                  type="number"
-                  step="0.01"
-                  class="w-full px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="1.00"
-                />
-              <span class="text-xs text-gray-600"
-                >Optional - How many sales units in one transfer unit</span
-              >
-            </div>
-          </div>
-
-          <!-- Conversion Calculation Display -->
-          <div
-            v-if="form.store_quantity_in_purchase_unit > 0 && form.purchase_to_transfer_rate > 0"
-            class="mt-4 p-4 bg-gray-800 rounded-lg border border-purple-500"
-          >
-            <h4 class="text-sm font-semibold text-purple-400 mb-2">
-              Store Stock Conversion:
-            </h4>
-            <div class="text-white">
-              <p class="text-sm">
-                <span class="font-bold">{{ form.store_quantity_in_purchase_unit }}</span>
-                <span class="blue-600">
-                  {{
-                    getPurchaseUnitConvertedName(form.purchase_unit_id) || "Purchase Unit"
-                  }}</span
-                >
-                <span class="mx-2">=</span>
-                <span class="font-bold green-600"> {{ calculateStoreInTransfer }}</span>
-                <span class="orange-600">
-                  {{
-                    getTransferUnitName(form.transfer_unit_id) || "Transfer Unit"
-                  }}</span
-                >
-              </p>
-              <p v-if="form.transfer_to_sales_rate > 0" class="text-sm mt-2">
-                <span class="mx-2">=</span>
-                <span class="font-bold green-600"> {{ calculateStoreInSales }}</span>
-                <span class="indigo-600">
-                  {{ getSalesUnitName(form.sales_unit_id) || "Sales Unit" }}</span
-                >
-              </p>
-            </div>
-          </div>
-        </div>
 
         <!-- Additional Options Section -->
         <div

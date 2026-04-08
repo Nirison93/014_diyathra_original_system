@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\GoodsReceivedNote;
 use App\Models\GoodsReceivedNoteProduct;
 use App\Models\Supplier;
-use App\Models\PurchaseOrderRequest;
-use App\Models\PurchaseOrderRequestProduct;
 use App\Models\Product;
 use App\Models\CompanyInformation;
 use App\Models\ProductMovement;
@@ -20,18 +18,16 @@ use Illuminate\Http\Request;
  * GoodReceiveNoteController
  * 
  * Manages the receipt of goods from suppliers (GRN - Goods Received Note).
- * Handles the complete procurement workflow including:
+ * Handles the complete goods receipt workflow including:
  * - Recording received goods with quantities and pricing
- * - Linking to Purchase Order Requests for order fulfillment tracking
  * - Inventory adjustment (incrementing stock upon receipt)
  * - Product movement tracking for audit trail
- * - Purchase Order status updates based on fulfillment
+ * - Batch quantity tracking
  * 
  * Business Logic:
- * - GRNs reference suppliers and optionally link to PurchaseOrderRequests
+ * - GRNs are linked directly to suppliers
  * - Stock is incremented when goods are received (by issued_quantity)
  * - GRN numbers are auto-generated with format: GRN-YYYYMMDD-XXXX
- * - Purchase Order status transitions: pending → processing → completed
  * - All operations wrapped in database transactions for consistency
  * 
  * @package App\Http\Controllers
@@ -45,8 +41,7 @@ class GoodReceiveNoteController extends Controller
      * - Associated products with quantities and pricing
      * - Product measurement units
      * - Supplier information
-     * - Available purchase orders for linking
-     * - Available products for manual addition
+     * - Available products for addition
      * - Auto-generated GRN number for new entries
      * 
      * @return \Inertia\Response
@@ -60,9 +55,6 @@ class GoodReceiveNoteController extends Controller
         // Load active suppliers for the dropdown
         $suppliers = Supplier::where('status', '!=', 0)->get();
         
-        // Load all purchase orders for order linking
-        $purchaseOrders = PurchaseOrderRequest::all();
-        
         // Load active products for item selection
         $products = Product::where('status', '!=', 0)->get();
         
@@ -74,13 +66,45 @@ class GoodReceiveNoteController extends Controller
             'goodsReceivedNotes' => $goodsReceivedNotes,
             'measurementUnits' => $measurementUnits,
             'suppliers' => $suppliers,
-            'purchaseOrders' => $purchaseOrders, 
             'availableProducts' => $products,
             'grnNumber' => $this->generateGoodReceiveNoteNumber(),
             'currencySymbol' => $currencySymbol,
         ]);
     }
 
+
+    /**
+     * Show the form for creating a new Goods Received Note
+     * 
+     * Provides the create form page with:
+     * - Auto-generated GRN number
+     * - List of active suppliers
+     * - List of available products
+     * - Measurement units for display
+     * 
+     * @return \Inertia\Response
+     */
+    public function create()
+    {
+        // Load active suppliers for the dropdown
+        $suppliers = Supplier::where('status', '!=', 0)->orderBy('name')->get();
+        
+        // Load active products for item selection
+        $availableProducts = Product::where('status', '!=', 0)->with(['salesUnit', 'purchaseUnit'])->get();
+        
+        // Load measurement units for display purposes
+        $measurementUnits = MeasurementUnit::orderBy('name')->get();
+
+        $currencySymbol = CompanyInformation::first();
+
+        return Inertia::render('GoodsReceivedNotes/Create', [
+            'suppliers' => $suppliers,
+            'availableProducts' => $availableProducts,
+            'grnNumber' => $this->generateGoodReceiveNoteNumber(),
+            'measurementUnits' => $measurementUnits,
+            'currencySymbol' => $currencySymbol,
+        ]);
+    }
 
     /**
      * Store a newly created Goods Received Note
@@ -91,13 +115,8 @@ class GoodReceiveNoteController extends Controller
      * 3. For each received product:
      *    - Creates GRN product line item with pricing
      *    - Records product movement (Type 0: PURCHASE) for audit trail
-     *    - Increments product store_quantity
-     *    - Updates linked Purchase Order Request issued_quantity (if linked)
-     * 4. Updates Purchase Order status based on fulfillment:
-     *    - First GRN: marks PO as 'processing'
-     *    - Final GRN (all items fulfilled): marks PO as 'completed'
-     * 
-     * All operations are atomic (wrapped in transaction).
+     *    - Increments product shop_quantity (all stock managed via GRN)
+     * 4. All operations are atomic (wrapped in transaction).
      * 
      * @param Request $request - Contains GRN data and product array
      * @return \Illuminate\Http\RedirectResponse
@@ -110,7 +129,6 @@ class GoodReceiveNoteController extends Controller
             'supplier_id'   => 'required|exists:suppliers,id',
             'goods_received_note_date'      => 'required|date',
             'batch_number'  => 'nullable|string',
-            'purchase_order_request_id'        => 'nullable|exists:purchase_order_requests,id',
             'subtotal'      => 'nullable|numeric|min:0',
             'discount'      => 'nullable|numeric|min:0',
             'tax_total'     => 'nullable|numeric|min:0',
@@ -119,7 +137,6 @@ class GoodReceiveNoteController extends Controller
             'products'                      => 'required|array|min:1',
             'products.*.product_id'         => 'required|exists:products,id',
             'products.*.batch_number'       => 'nullable|string',
-            'products.*.requested_quantity' => 'required|numeric|min:0.01',
             'products.*.issued_quantity'    => 'required|numeric|min:0.01',
             'products.*.purchase_price'     => 'required|numeric|min:0',
             'products.*.discount'           => 'nullable|numeric|min:0',
@@ -133,7 +150,6 @@ class GoodReceiveNoteController extends Controller
         try {
             // Create main GRN record
             $grn = GoodsReceivedNote::create([
-                'purchase_order_request_id'        => $validated['purchase_order_request_id'] ?? null,
                 'goods_received_note_no'        => $validated['goods_received_note_no'],
                 'batch_number'  => $validated['batch_number'] ?? null,
                 'supplier_id'   => $validated['supplier_id'],
@@ -155,15 +171,6 @@ class GoodReceiveNoteController extends Controller
 
                 // Use GRN batch_number for all products in this GRN
                 $batchNumberForProduct = $validated['batch_number'] ?? $product['batch_number'] ?? null;
-
-                //  Business validation: issued qty cannot exceed requested qty
-                if ($product['issued_quantity'] > $product['requested_quantity']) {
-                    throw new \Exception(
-                        'Issued quantity cannot be greater than requested quantity for product ID: ' 
-                        . $product['product_id']
-                    );
-                    
-                }
 
                 // Save received product line (store quantity in `quantity` column)
                 GoodsReceivedNoteProduct::create([
@@ -187,12 +194,10 @@ class GoodReceiveNoteController extends Controller
                         ->first();
 
                     if ($existingRecord) {
-                        // Update existing batch record - add to available quantity in purchase units only
+                        // Update existing batch record - add to available quantity
                         $existingRecord->increment('available_quantity', $issuedQty);
                     } else {
                         // Create new batch record with GRN ID
-                        // Only store available_quantity in purchase units
-                        // quantity_in_transfer_unit and quantity_in_sales_unit will be calculated when items transfer
                         ProductAvailableQuantity::create([
                             'product_id'              => $product['product_id'],
                             'batch_number'           => $batchNumberForProduct,
@@ -214,55 +219,14 @@ class GoodReceiveNoteController extends Controller
                     $validated['goods_received_note_no']
                 );
 
-                // Increment storage stock quantity on the product by the received amount
-                // Goods are received in purchase units only - don't pre-calculate transfer units
+                // Increment shop stock quantity on the product by the received amount
+                // All stock is now managed via GRN - stored in shop_quantity
                 $productModel = Product::find($product['product_id']);
                 if ($productModel) {
                     $receivedQty = (int) $product['issued_quantity'];
                     
-                    // Update purchase unit quantity only (boxes)
-                    $productModel->increment('store_quantity_in_purchase_unit', $receivedQty);
-                    
-                    // Don't auto-calculate transfer units - they will be created when boxes are broken down
-                }
-
-                // If this GRN is linked to a Purchase Order Request, update the issued_quantity
-                // This tracks fulfillment progress on the original PO
-                if (!empty($grn->purchase_order_request_id)) {
-                    PurchaseOrderRequestProduct::where('purchase_order_request_id', $grn->purchase_order_request_id)
-                        ->where('product_id', $product['product_id'])
-                        ->increment('issued_quantity', (int) $product['issued_quantity']);
-                }
-            }
-
-            // Update Purchase Order status based on fulfillment progress
-            // This ensures PO status reflects actual receipt status
-            if (!empty($grn->purchase_order_request_id)) {
-                $poId = $grn->purchase_order_request_id;
-                // Get all products on this PO to check fulfillment status
-                $porProducts = PurchaseOrderRequestProduct::where('purchase_order_request_id', $poId)->get();
-
-                // Check if all products have been fully received
-                // (issued_quantity >= requested_quantity for all items)
-                $allCompleted = $porProducts->every(function ($p) {
-                    $issued = $p->issued_quantity ?? 0;
-                    $requested = $p->requested_quantity ?? 0;
-                    return $issued >= $requested;
-                });
-
-                // Update PO status accordingly
-                $po = PurchaseOrderRequest::find($poId);
-
-                if ($allCompleted) {
-                    // All items received - mark PO as completed
-                    if ($po && $po->status !== 'completed') {
-                        $po->update(['status' => 'completed']);
-                    }
-                } else {
-                    // Partial receipt - mark PO as processing (only if not already processing/completed)
-                    if ($po && !in_array($po->status, ['processing', 'completed'])) {
-                        $po->update(['status' => 'processing']);
-                    }
+                    // Update shop quantity with received stock
+                    $productModel->increment('shop_quantity', $receivedQty);
                 }
             }
 

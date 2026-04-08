@@ -12,7 +12,6 @@ class GoodsReceivedNote extends Model
     protected $table = 'goods_received_notes';
 
     protected $fillable = [
-        'purchase_order_request_id',
         'goods_received_note_no',
         'batch_number',
         'supplier_id',

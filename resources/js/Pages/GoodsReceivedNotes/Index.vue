@@ -15,12 +15,12 @@
           <h1 class="text-4xl font-bold text-gray-800">Goods Received Notes</h1>
         </div>
         <!-- Add New Button -->
-        <button
-          @click="openCreateModal"
-          class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200"
+        <a
+          :href="route('good-receive-notes.create')"
+          class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all duration-300 inline-block"
         >
-          + Add Goods Received Note
-        </button>
+          + Create Goods Received Note
+        </a>
       </div>
 
       <!-- Goods Received Notes Table Container -->

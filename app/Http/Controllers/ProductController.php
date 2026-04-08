@@ -52,12 +52,8 @@ class ProductController extends Controller
             'purchase_price',
             'wholesale_price',
             'retail_price',
-            'shop_quantity_in_sales_unit',
+            'shop_quantity',
             'shop_low_stock_margin',
-            'store_quantity_in_purchase_unit',
-            'store_quantity_in_transfer_unit as loose_bundles',
-            'store_quantity_in_sale_unit',
-            'store_low_stock_margin',
             'purchase_unit_id',
             'sales_unit_id',
             'transfer_unit_id',
@@ -76,8 +72,7 @@ class ProductController extends Controller
             'tax',
             'purchaseUnit',
             'salesUnit',
-            'transferUnit',
-            'shopStockByUnit.measurementUnit'
+            'transferUnit'
         ]);
 
         if ($search !== '') {
@@ -96,25 +91,6 @@ class ProductController extends Controller
         ->orderBy('id', 'desc')
         ->paginate(10)
         ->withQueryString();
-
-        // Load available quantities for each product from product_available_quantities table in FIFO order
-        $availableQuantities = ProductAvailableQuantity::select('product_id', 'batch_number', 'available_quantity', 'unit_id', 'created_at')
-            ->orderBy('created_at', 'asc') // FIFO: oldest batches first
-            ->get()
-            ->groupBy('product_id');
-
-        // Add current batch (oldest) and total to each product
-        $products->getCollection()->transform(function ($product) use ($availableQuantities) {
-            $batches = $availableQuantities->get($product->id, collect());
-            $product->available_quantities = $batches;
-            
-            // Get only the current batch (oldest/first one being consumed)
-            $product->current_batch = $batches->first();
-            
-            // Calculate total store quantity from product_available_quantities
-            $product->store_quantity_from_batches = $batches->sum('available_quantity');
-            return $product;
-        });
 
         $brands = Brand::where('status', '!=', 0)
             ->orderBy('id', 'desc')
@@ -183,58 +159,55 @@ class ProductController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'barcode' => 'nullable|string|unique:products,barcode',
-        'brand_id' => 'nullable|exists:brands,id',
-        'category_id' => 'nullable|exists:categories,id',
-        'type_id' => 'nullable|exists:types,id',
-        'discount_id' => 'nullable|exists:discounts,id',
-        'tax_id' => 'nullable|exists:taxes,id',
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'barcode' => 'nullable|string|unique:products,barcode',
+            'brand_id' => 'nullable|exists:brands,id',
+            'category_id' => 'nullable|exists:categories,id',
+            'type_id' => 'nullable|exists:types,id',
+            'discount_id' => 'nullable|exists:discounts,id',
+            'tax_id' => 'nullable|exists:taxes,id',
 
-        'shop_quantity_in_sales_unit' => 'nullable|numeric|min:0',
-        'shop_low_stock_margin' => 'nullable|numeric|min:0',
+            'shop_quantity' => 'nullable|numeric|min:0',
+            'shop_low_stock_margin' => 'nullable|numeric|min:0',
 
-        'store_quantity_in_purchase_unit' => 'nullable|numeric|min:0',
-        'store_low_stock_margin' => 'nullable|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'wholesale_price' => 'nullable|numeric|min:0',
+            'retail_price' => 'nullable|numeric|min:0',
 
-        'purchase_price' => 'nullable|numeric|min:0',
-        'wholesale_price' => 'nullable|numeric|min:0',
-        'retail_price' => 'nullable|numeric|min:0',
+            'return_product' => 'nullable|boolean',
 
-        'return_product' => 'nullable|boolean',
+            'purchase_unit_id' => 'nullable|exists:measurement_units,id',
+            'sales_unit_id' => 'nullable|exists:measurement_units,id',
+            'transfer_unit_id' => 'nullable|exists:measurement_units,id',
 
-        'purchase_unit_id' => 'nullable|exists:measurement_units,id',
-        'sales_unit_id' => 'nullable|exists:measurement_units,id',
-        'transfer_unit_id' => 'nullable|exists:measurement_units,id',
+            'purchase_to_transfer_rate' => 'nullable|numeric|min:0',
+            'transfer_to_sales_rate' => 'nullable|numeric|min:0',
 
-        'purchase_to_transfer_rate' => 'nullable|numeric|min:0',
-        'transfer_to_sales_rate' => 'nullable|numeric|min:0',
+            'status' => 'required|integer|in:0,1',
 
-        'status' => 'required|integer|in:0,1',
+            'image' => 'nullable|image',
+        ]);
 
-        'image' => 'nullable|image',
-    ]);
+        // Generate barcode if empty
+        if (empty($validated['barcode'])) {
+            $validated['barcode'] = $this->generateBarcode();
+        }
 
-    // Generate barcode if empty
-    if (empty($validated['barcode'])) {
-        $validated['barcode'] = $this->generateBarcode();
+        // Image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Return product convert to boolean
+        $validated['return_product'] = $request->boolean('return_product');
+
+        Product::create($validated);
+
+        return redirect()->route('products.index')
+            ->with('success', 'Product created successfully.');
     }
-
-    // Image upload
-    if ($request->hasFile('image')) {
-        $validated['image'] = $request->file('image')->store('products', 'public');
-    }
-
-    // Return product convert to boolean
-    $validated['return_product'] = $request->boolean('return_product');
-
-    Product::create($validated);
-
-    return redirect()->route('products.index')
-        ->with('success', 'Product created successfully.');
-}
 
 
     /**
@@ -282,11 +255,8 @@ class ProductController extends Controller
             'type_id' => 'nullable|exists:types,id',
             'discount_id' => 'nullable|exists:discounts,id',
             'tax_id' => 'nullable|exists:taxes,id',
-            'shop_quantity_in_sales_unit' => 'nullable|numeric|min:0',
+            'shop_quantity' => 'nullable|numeric|min:0',
             'shop_low_stock_margin' => 'nullable|numeric|min:0',
-
-            'store_quantity_in_purchase_unit' => 'nullable|numeric|min:0',
-            'store_low_stock_margin' => 'nullable|numeric|min:0',
 
             'purchase_price' => 'nullable|numeric|min:0',
             'wholesale_price' => 'nullable|numeric|min:0',

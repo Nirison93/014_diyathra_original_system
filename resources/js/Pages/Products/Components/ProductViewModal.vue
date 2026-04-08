@@ -190,7 +190,7 @@
         </div>
 
         <!-- SECTION 3: Inventory & Units -->
-        <div class="bg-white rounded-xl p-4 shadow-lg border border-white/60">
+        <!-- <div class="bg-white rounded-xl p-4 shadow-lg border border-white/60">
           <h3 class="mb-3 text-lg font-semibold text-orange-600 flex items-center gap-2">
             📦 Inventory & Units
           </h3>
@@ -331,10 +331,10 @@
               </p>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- SECTION 4: Unit Conversion Rates -->
-        <div class="bg-white rounded-xl p-4 shadow-lg border border-white/60">
+        <!-- <div class="bg-white rounded-xl p-4 shadow-lg border border-white/60">
           <h3 class="mb-3 text-lg font-semibold text-purple-600 flex items-center gap-2">
             🔄 Unit Conversion Rates
           </h3>
@@ -352,7 +352,7 @@
               </p>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- SECTION 5: Additional Information -->
         <div class="bg-white rounded-xl p-4 shadow-lg border border-white/60">

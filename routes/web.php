@@ -15,12 +15,8 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\TaxController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PurchaseOrderRequestsController;
 use App\Http\Controllers\GoodReceiveNoteController;
 use App\Http\Controllers\PurchaseExpenseController;
-use App\Http\Controllers\ProductTransferRequestsController;
-use App\Http\Controllers\StockTransferReturnController;
-use App\Http\Controllers\PurchaseRequestNoteController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\CashDrawerController;
 use App\Http\Controllers\QuotationController;
@@ -30,8 +26,6 @@ use App\Http\Controllers\CompanyInformationController;
 use App\Http\Controllers\AppSettingController;
 use App\Http\Controllers\SmtpSettingController;
 use App\Http\Controllers\GoodReceiveNoteReturnController;
-use App\Http\Controllers\ProductReleaseReportController;
-use App\Http\Controllers\StockTransferReturnReportController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\ExcelController;
@@ -190,17 +184,10 @@ Route::middleware(['auth', 'role:0,1,3'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:0,3,4'])->group(function () {
-    // Stock Transfer Requests
+    // Suppliers Management
     Route::resource('suppliers', SupplierController::class, ['only' => ['index', 'store', 'update', 'destroy']]);
-        Route::resource('purchase-expenses', PurchaseExpenseController::class, ['only' => ['index', 'store', 'update', 'destroy']]);
+    Route::resource('purchase-expenses', PurchaseExpenseController::class, ['only' => ['index', 'store', 'update', 'destroy']]);
     Route::get('/purchase-expenses/supplier-data', [PurchaseExpenseController::class, 'getSupplierData'])->name('purchase-expenses.supplier-data');
-
-        Route::get('/product-release-notes', [PurchaseRequestNoteController::class, 'index'])->name('product-release-notes.index');                   // List all PRNs
-    Route::post('/product-release-notes', [PurchaseRequestNoteController::class, 'store'])->name('product-release-notes.store');                  // Create new PRN
-    Route::put('/product-release-notes/{productReleaseNote}', [PurchaseRequestNoteController::class, 'update'])->name('product-release-notes.update');           // Update PRN
-    Route::delete('/product-release-notes/{productReleaseNote}', [PurchaseRequestNoteController::class, 'destroy'])->name('product-release-notes.destroy');      // Delete PRN
-
-
 
 });
 
@@ -223,24 +210,10 @@ Route::middleware(['auth', 'role:0,1,2'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
-    Route::prefix('purchase-order-requests')->name('purchase-order-requests.')->group(function () {
-    // Purchase Order Request Routes
-        Route::get('/', [PurchaseOrderRequestsController::class, 'index'])->name('index');
-        Route::get('/create', [PurchaseOrderRequestsController::class, 'create'])->name('create');
-        Route::post('/', [PurchaseOrderRequestsController::class, 'store'])->name('store');
-        Route::get('/{purchaseOrderRequest}', [PurchaseOrderRequestsController::class, 'show'])->name('show');
-        Route::patch('/{purchaseOrderRequest}', [PurchaseOrderRequestsController::class, 'update'])->name('update');
-        Route::patch('/{purchaseOrderRequest}/status', [PurchaseOrderRequestsController::class, 'updateStatus'])->name('update-status');
-        Route::delete('/{purchaseOrderRequest}', [PurchaseOrderRequestsController::class, 'destroy'])->name('destroy');
-        Route::post('/{purchaseOrderRequest}/restore', [PurchaseOrderRequestsController::class, 'restore'])->name('restore');
-    });
-
-    // Get Purchase Order Details (AJAX endpoint)
-    Route::get('/po/{id}/details', [PurchaseOrderRequestsController::class, 'purchaseOrderDetails']);
-
     // Goods Received Note Routes
     Route::prefix('goods-received-notes')->name('good-receive-notes.')->group(function () {
         Route::get('/', [GoodReceiveNoteController::class, 'index'])->name('index');
+        Route::get('/create', [GoodReceiveNoteController::class, 'create'])->name('create');
         Route::post('/', [GoodReceiveNoteController::class, 'store'])->name('store');
         Route::patch('/{goodsReceivedNote}', [GoodReceiveNoteController::class, 'update'])->name('update');
         Route::patch('/{goodsReceivedNote}/status', [GoodReceiveNoteController::class, 'updateStatus'])->name('update-status');
@@ -256,37 +229,6 @@ Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
         Route::delete('/{goodReceiveNoteReturn}', [GoodReceiveNoteReturnController::class, 'destroy'])->name('destroy');
         Route::patch('/{goodReceiveNoteReturn}', [GoodReceiveNoteReturnController::class, 'update'])->name('update');
     });
-
-    // Product Transfer Request Routes
-    Route::get('/product-transfer-requests/{id}/details', [ProductTransferRequestsController::class, 'productTransferRequestDetails']);
-    Route::resource('product-transfer-requests', ProductTransferRequestsController::class);
-    Route::patch('product-transfer-requests/{productTransferRequest}/status', [ProductTransferRequestsController::class, 'updateStatus'])->name('product-transfer-requests.updateStatus');
-
-    // Stock Transfer Return Routes (Shop → Store - Damaged/Returns)
-    Route::resource('stock-transfer-returns', StockTransferReturnController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::patch('stock-transfer-returns/{stockTransferReturn}/status', [StockTransferReturnController::class, 'updateStatus'])->name('stock-transfer-returns.update-status');
-    Route::post('stock-transfer-returns/available-quantity', [StockTransferReturnController::class, 'getAvailableQuantity'])->name('stock-transfer-returns.available-quantity');
-
-    // Store Inventory Routes
-    Route::prefix('store-inventory')->name('store-inventory.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\StoreInventoryController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\StoreInventoryController::class, 'store'])->name('store');
-        Route::get('/{id}', [\App\Http\Controllers\StoreInventoryController::class, 'show'])->name('show');
-        Route::patch('/{id}', [\App\Http\Controllers\StoreInventoryController::class, 'update'])->name('update');
-        Route::delete('/{id}', [\App\Http\Controllers\StoreInventoryController::class, 'destroy'])->name('destroy');
-        Route::get('/current/quantities', [\App\Http\Controllers\StoreInventoryController::class, 'getCurrentQuantities'])->name('current-quantities');
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Release Note Routes
-    |--------------------------------------------------------------------------
-    |
-    | Track product releases/dispatches from inventory
-    |
-    */
-
-        Route::get('/sales-history', [SaleController::class, 'salesHistory'])->name('sales.all');
 
     /*
     |--------------------------------------------------------------------------
@@ -329,12 +271,6 @@ Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
         // Product Movements Report - Track all inventory movements
         Route::get('/product-movements', [ReportController::class, 'productMovementReport'])->name('product-movements');
 
-            // Product Release Notes Report
-        Route::get('/product-release', [ProductReleaseReportController::class, 'index'])->name('product-release');
-
-        // Stock Transfer Returns Report
-        Route::get('/stock-transfer-return', [StockTransferReturnReportController::class, 'index'])->name('stock-transfer-return');
-
         // Export Routes
         Route::get('/export/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
         Route::get('/export/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
@@ -355,11 +291,6 @@ Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
         Route::get('/export/grn-returns/excel', [ReportController::class, 'exportGoodReceiveNoteReturnExcel'])->name('export.grn-returns.excel');
         Route::get('/export/product-movements/pdf', [ReportController::class, 'exportProductMovementPdf'])->name('export.product-movements.pdf');
         Route::get('/export/product-movements/excel', [ReportController::class, 'exportProductMovementExcel'])->name('export.product-movements.excel');
-        Route::get('/export/product-release/pdf', [ProductReleaseReportController::class, 'exportPdf'])->name('export.product-release.pdf');
-        Route::get('/export/product-release/excel', [ProductReleaseReportController::class, 'exportExcel'])->name('export.product-release.excel');
-        Route::get('/export/stock-transfer-return/pdf', [StockTransferReturnReportController::class, 'exportPdf'])->name('export.stock-transfer-return.pdf');
-        Route::get('/export/stock-transfer-return/excel', [StockTransferReturnReportController::class, 'exportExcel'])->name('export.stock-transfer-return.excel');
-
         // Activity Log Report
         Route::get('/activity-log', [\App\Http\Controllers\ActivityLogReportController::class, 'index'])->name('activity-log');
         Route::get('/export/activity-log/pdf', [\App\Http\Controllers\ActivityLogReportController::class, 'exportPdf'])->name('export.activity-log.pdf');
@@ -421,16 +352,6 @@ Route::middleware(['auth', 'role:0,1, 2,3'])->group(function () {
         // Product Movements Report - Track all inventory movements
         Route::get('/product-movements', [ReportController::class, 'productMovementReport'])->name('product-movements');
 
-        // Product Release Notes Report
-        Route::get('/product-release', [ProductReleaseReportController::class, 'index'])->name('product-release');
-        Route::get('/export/product-release/pdf', [ProductReleaseReportController::class, 'exportPdf'])->name('export.product-release.pdf');
-        Route::get('/export/product-release/excel', [ProductReleaseReportController::class, 'exportExcel'])->name('export.product-release.excel');
-
-        // Stock Transfer Returns Report
-        Route::get('/stock-transfer-return', [StockTransferReturnReportController::class, 'index'])->name('stock-transfer-return');
-        Route::get('/export/stock-transfer-return/pdf', [StockTransferReturnReportController::class, 'exportPdf'])->name('export.stock-transfer-return.pdf');
-        Route::get('/export/stock-transfer-return/excel', [StockTransferReturnReportController::class, 'exportExcel'])->name('export.stock-transfer-return.excel');
-
         //GRN Report - Goods Received Notes
         Route::get('/grn', [ReportController::class, 'grnReport'])->name('grn');
 
@@ -461,13 +382,7 @@ Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
         Route::get('/activity-log', [\App\Http\Controllers\ActivityLogReportController::class, 'index'])->name('activity-log');
     });
 
-    // Product Release Note Routes (Admin & Manager Only)
-    Route::get('/product-release-notes', [PurchaseRequestNoteController::class, 'index'])->name('product-release-notes.index');
-    Route::post('/product-release-notes', [PurchaseRequestNoteController::class, 'store'])->name('product-release-notes.store');
-    Route::put('/product-release-notes/{productReleaseNote}', [PurchaseRequestNoteController::class, 'update'])->name('product-release-notes.update');
-    Route::delete('/product-release-notes/{productReleaseNote}', [PurchaseRequestNoteController::class, 'destroy'])->name('product-release-notes.destroy');
-
-   // Return Routes (Admin & Manager Only)
+    // Return Routes (Admin & Manager Only)
     Route::prefix('return')->name('return.')->group(function () {
         Route::get('/', [ReturnController::class, 'index'])->name('index');
         Route::get('/{return}', [ReturnController::class, 'show'])->name('show');
