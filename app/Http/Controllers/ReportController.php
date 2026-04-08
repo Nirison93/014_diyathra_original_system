@@ -390,7 +390,7 @@ class ReportController extends Controller
                 $looseBundles = $looseBundles < 0 ? 0 : $looseBundles;
                 return [
                     'name' => $p->name,
-                    'shop_qty_display' => $p->shop_quantity_in_sales_unit . ' ' . ($p->salesUnit->symbol ?? $p->salesUnit->name ?? ''),
+                    'shop_qty_display' => $p->shop_quantity . ' ' . ($p->salesUnit->symbol ?? $p->salesUnit->name ?? ''),
                     'store_qty_display' => $p->store_quantity_in_purchase_unit . ' ' . ($p->purchaseUnit->symbol ?? $p->purchaseUnit->name ?? ''),
                     'loose_bundles' => $looseBundles . ' ' . ($p->transferUnit->symbol ?? $p->transferUnit->name ?? ''),
                 ];
@@ -431,7 +431,7 @@ class ReportController extends Controller
                 $looseBundles = $looseBundles < 0 ? 0 : $looseBundles;
                 return [
                     'name' => $p->name,
-                    'shop_qty_display' => $p->shop_quantity_in_sales_unit . ' ' . ($p->salesUnit->symbol ?? $p->salesUnit->name ?? ''),
+                    'shop_qty_display' => $p->shop_quantity . ' ' . ($p->salesUnit->symbol ?? $p->salesUnit->name ?? ''),
                     'store_qty_display' => $p->store_quantity_in_purchase_unit . ' ' . ($p->purchaseUnit->symbol ?? $p->purchaseUnit->name ?? ''),
                     'loose_bundles' => $looseBundles . ' ' . ($p->transferUnit->symbol ?? $p->transferUnit->name ?? ''),
                 ];
@@ -1159,7 +1159,7 @@ class ReportController extends Controller
         $currency = $currencySymbol?->currency ?? 'Rs.';
 
         // Get products with sales and movement data
-        $products = Product::select('id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price', 'sales_unit_id')
+        $products = Product::select('id', 'name', 'barcode', 'shop_quantity', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price', 'sales_unit_id')
             ->with([
                 'salesProducts' => function($query) use ($startDate, $endDate) {
                     $query->select('id', 'product_id', 'quantity', 'price', 'total', 'sale_id')
@@ -1178,7 +1178,7 @@ class ReportController extends Controller
             ->map(function ($product) use ($startDate, $endDate) {
                 $totalSalesQty = $product->salesProducts->sum('quantity');
                 $totalSalesAmount = $product->salesProducts->sum('total');
-                $totalStock = $product->shop_quantity_in_sales_unit ;
+                $totalStock = $product->shop_quantity ;
 
                 $daysDiff = max(1, \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)));
                 $salesVelocity = $totalSalesQty / $daysDiff;
@@ -1253,7 +1253,7 @@ class ReportController extends Controller
         $classificationFilter = $request->input('classification', null);
 
         // Rebuild the products collection (same logic as the page)
-        $products = Product::select('id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price')
+        $products = Product::select('id', 'name', 'barcode', 'shop_quantity', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price')
             ->with([
                 'salesProducts' => function($query) use ($startDate, $endDate) {
                     $query->select('id', 'product_id', 'quantity', 'price', 'total', 'sale_id')
@@ -1270,7 +1270,7 @@ class ReportController extends Controller
             ->map(function ($product) {
                 $totalSalesQty = $product->salesProducts->sum('quantity');
                 $totalSalesAmount = $product->salesProducts->sum('total');
-                $totalStock = $product->shop_quantity_in_sales_unit + $product->store_quantity_in_purchase_unit;
+                $totalStock = $product->shop_quantity + $product->store_quantity_in_purchase_unit;
 
                 $daysDiff = max(1, Carbon::parse(request()->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d')))
                     ->diffInDays(Carbon::parse(request()->input('end_date', Carbon::now()->format('Y-m-d')))));
@@ -1343,7 +1343,7 @@ class ReportController extends Controller
         $classificationFilter = $request->input('classification', null);
 
         // Rebuild products same as page
-        $products = Product::select('id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price')
+        $products = Product::select('id', 'name', 'barcode', 'shop_quantity', 'store_quantity_in_purchase_unit', 'retail_price', 'wholesale_price')
             ->with([
                 'salesProducts' => function($query) use ($startDate, $endDate) {
                     $query->select('id', 'product_id', 'quantity', 'price', 'total', 'sale_id')
@@ -1356,7 +1356,7 @@ class ReportController extends Controller
             ->map(function ($product) {
                 $totalSalesQty = $product->salesProducts->sum('quantity');
                 $totalSalesAmount = $product->salesProducts->sum('total');
-                $totalStock = $product->shop_quantity_in_sales_unit + $product->store_quantity_in_purchase_unit;
+                $totalStock = $product->shop_quantity + $product->store_quantity_in_purchase_unit;
 
                 $daysDiff = max(1, Carbon::parse(request()->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d')))
                     ->diffInDays(Carbon::parse(request()->input('end_date', Carbon::now()->format('Y-m-d')))));
@@ -2246,7 +2246,7 @@ class ReportController extends Controller
         $filterType = $request->input('filter', 'both');
 
         $query = Product::select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'store_quantity_in_purchase_unit', 'store_low_stock_margin', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'store_quantity_in_purchase_unit', 'store_low_stock_margin', 'updated_at'
             );
 
         if ($startDate && $endDate) {
@@ -2260,12 +2260,12 @@ class ReportController extends Controller
         }
 
         if ($filterType === 'shop') {
-            $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
+            $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
         } elseif ($filterType === 'store') {
             $query->whereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
         } else {
             $query->where(function($q) {
-                $q->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin')
+                $q->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin')
                   ->orWhereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
             });
         }
@@ -2286,13 +2286,13 @@ class ReportController extends Controller
             fputcsv($file, $columns);
 
             foreach ($products as $p) {
-                $shopStatus = $p->shop_quantity_in_sales_unit <= $p->shop_low_stock_margin ? 'Low' : 'OK';
+                $shopStatus = $p->shop_quantity <= $p->shop_low_stock_margin ? 'Low' : 'OK';
                 $storeStatus = $p->store_quantity_in_purchase_unit <= $p->store_low_stock_margin ? 'Low' : 'OK';
                 fputcsv($file, [
                     $p->id,
                     $p->name,
                     $p->barcode,
-                    $p->shop_quantity_in_sales_unit,
+                    $p->shop_quantity,
                     $p->shop_low_stock_margin,
                     $shopStatus,
                     $p->store_quantity_in_purchase_unit,
@@ -2317,7 +2317,7 @@ class ReportController extends Controller
         $filterType = $request->input('filter', 'both');
 
         $query = Product::select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'store_quantity_in_purchase_unit', 'store_low_stock_margin', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'store_quantity_in_purchase_unit', 'store_low_stock_margin', 'updated_at'
             );
 
         if ($startDate && $endDate) {
@@ -2331,12 +2331,12 @@ class ReportController extends Controller
         }
 
         if ($filterType === 'shop') {
-            $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
+            $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
         } elseif ($filterType === 'store') {
             $query->whereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
         } else {
             $query->where(function($q) {
-                $q->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin')
+                $q->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin')
                   ->orWhereColumn('store_quantity_in_purchase_unit', '<=', 'store_low_stock_margin');
             });
         }
@@ -2346,11 +2346,11 @@ class ReportController extends Controller
                 'id' => $item->id,
                 'name' => $item->name,
                 'barcode' => $item->barcode,
-                'shop_quantity' => $item->shop_quantity_in_sales_unit,
+                'shop_quantity' => $item->shop_quantity,
                 'shop_low_stock_margin' => $item->shop_low_stock_margin,
                 'store_quantity' => $item->store_quantity_in_purchase_unit,
                 'store_low_stock_margin' => $item->store_low_stock_margin,
-                'shop_status' => $item->shop_quantity_in_sales_unit <= $item->shop_low_stock_margin ? 'Low' : 'OK',
+                'shop_status' => $item->shop_quantity <= $item->shop_low_stock_margin ? 'Low' : 'OK',
                 'store_status' => $item->store_quantity_in_purchase_unit <= $item->store_low_stock_margin ? 'Low' : 'OK',
             ];
         });
@@ -2371,7 +2371,7 @@ class ReportController extends Controller
         $endDate = $request->input('end_date');
 
         $query = Product::with(['salesUnit'])->select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'sales_unit_id', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'sales_unit_id', 'updated_at'
             );
 
         if ($startDate && $endDate) {
@@ -2384,18 +2384,18 @@ class ReportController extends Controller
             }
         }
 
-        $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
+        $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
 
         $products = $query->orderBy('name')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'name' => $item->name,
                 'barcode' => $item->barcode,
-                'shop_quantity' => (int) $item->shop_quantity_in_sales_unit,
+                'shop_quantity' => (int) $item->shop_quantity,
                 'shop_low_stock_margin' => (int) $item->shop_low_stock_margin,
                 'sales_unit' => $item->salesUnit ? $item->salesUnit->name : 'N/A',
                 'symbol' => $item->salesUnit ? $item->salesUnit->symbol : 'N/A',
-                'status' => $item->shop_quantity_in_sales_unit <= $item->shop_low_stock_margin ? 'Low' : 'OK',
+                'status' => $item->shop_quantity <= $item->shop_low_stock_margin ? 'Low' : 'OK',
             ];
         });
 
@@ -2415,7 +2415,7 @@ class ReportController extends Controller
         $endDate = $request->input('end_date');
 
         $query = Product::select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'updated_at'
             );
 
         if ($startDate && $endDate) {
@@ -2428,7 +2428,7 @@ class ReportController extends Controller
             }
         }
 
-        $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
+        $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
         $products = $query->orderBy('name')->get();
 
         $filename = 'low-stock-shop-report-' . date('Y-m-d') . '.csv';
@@ -2445,12 +2445,12 @@ class ReportController extends Controller
             fputcsv($file, $columns);
 
             foreach ($products as $p) {
-                $status = $p->shop_quantity_in_sales_unit <= $p->shop_low_stock_margin ? 'Low' : 'OK';
+                $status = $p->shop_quantity <= $p->shop_low_stock_margin ? 'Low' : 'OK';
                 fputcsv($file, [
                     $p->id,
                     $p->name,
                     $p->barcode,
-                    $p->shop_quantity_in_sales_unit,
+                    $p->shop_quantity,
                     $p->shop_low_stock_margin,
                     $status,
                 ]);
@@ -2468,7 +2468,7 @@ class ReportController extends Controller
         $endDate = $request->input('end_date');
 
         $query = Product::with(['salesUnit'])->select(
-                'id', 'name', 'barcode', 'shop_quantity_in_sales_unit', 'shop_low_stock_margin', 'sales_unit_id', 'updated_at'
+                'id', 'name', 'barcode', 'shop_quantity', 'shop_low_stock_margin', 'sales_unit_id', 'updated_at'
             );
 
         if ($startDate && $endDate) {
@@ -2481,17 +2481,17 @@ class ReportController extends Controller
             }
         }
 
-        $query->whereColumn('shop_quantity_in_sales_unit', '<=', 'shop_low_stock_margin');
+        $query->whereColumn('shop_quantity', '<=', 'shop_low_stock_margin');
         $products = $query->orderBy('name')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'name' => $item->name,
                 'barcode' => $item->barcode,
-                'shop_quantity' => $item->shop_quantity_in_sales_unit,
+                'shop_quantity' => $item->shop_quantity,
                 'shop_low_stock_margin' => $item->shop_low_stock_margin,
                 'sales_unit' => $item->salesUnit ? $item->salesUnit->name : 'N/A',
                 'symbol' => $item->salesUnit ? $item->salesUnit->symbol : 'N/A',
-                'status' => $item->shop_quantity_in_sales_unit <= $item->shop_low_stock_margin ? 'Low' : 'OK',
+                'status' => $item->shop_quantity <= $item->shop_low_stock_margin ? 'Low' : 'OK',
             ];
         });
 

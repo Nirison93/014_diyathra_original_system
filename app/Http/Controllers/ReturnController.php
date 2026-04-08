@@ -184,8 +184,8 @@ class ReturnController extends Controller
             'salesProducts' => $salesProducts,
             'currencySymbol' => $currencySymbol,
             'billSetting' => \App\Models\BillSetting::latest('id')->first(),
-            'shopProducts' => Product::select('id','name','barcode','shop_quantity_in_sales_unit','retail_price','wholesale_price')
-                ->where('shop_quantity_in_sales_unit','>',0)
+            'shopProducts' => Product::select('id','name','barcode','shop_quantity','retail_price','wholesale_price')
+                ->where('shop_quantity','>',0)
                 ->orderBy('name')
                 ->get(),
             'filters' => $request->only(['status', 'search', 'date_from', 'date_to']),
@@ -224,7 +224,7 @@ class ReturnController extends Controller
                         // Increase product quantity
                         $product = Product::find($returnProduct->product_id);
                         if ($product) {
-                            $product->increment('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                            $product->increment('shop_quantity', $returnProduct->quantity);
                             
                             // Record product movement (Sale Return - increases stock)
                             ProductMovement::recordMovement(
@@ -240,7 +240,7 @@ class ReturnController extends Controller
                     foreach ($return->replacements as $rep) {
                         $product = Product::find($rep->product_id);
                         if ($product) {
-                            $product->decrement('shop_quantity_in_sales_unit', $rep->quantity);
+                            $product->decrement('shop_quantity', $rep->quantity);
                             
                             // Record product movement (Release - reduces stock)
                             ProductMovement::recordMovement(
@@ -280,7 +280,7 @@ class ReturnController extends Controller
                         // Decrease product quantity (reverse the approval)
                         $product = Product::find($returnProduct->product_id);
                         if ($product) {
-                            $product->decrement('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                            $product->decrement('shop_quantity', $returnProduct->quantity);
                             
                             // Record product movement (reverse)
                             ProductMovement::recordMovement(
@@ -296,7 +296,7 @@ class ReturnController extends Controller
                     foreach ($return->replacements as $rep) {
                         $product = Product::find($rep->product_id);
                         if ($product) {
-                            $product->increment('shop_quantity_in_sales_unit', $rep->quantity);
+                            $product->increment('shop_quantity', $rep->quantity);
                             
                             ProductMovement::recordMovement(
                                 $rep->product_id,
@@ -460,7 +460,7 @@ class ReturnController extends Controller
                 foreach (SalesReturnProduct::where('sales_return_id', $return->id)->get() as $returnProduct) {
                     $product = Product::find($returnProduct->product_id);
                     if ($product) {
-                        $product->increment('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                        $product->increment('shop_quantity', $returnProduct->quantity);
                         ProductMovement::recordMovement(
                             $returnProduct->product_id,
                             ProductMovement::TYPE_SALE_RETURN,
@@ -476,7 +476,7 @@ class ReturnController extends Controller
                 foreach (SalesReturnReplacementProduct::where('sales_return_id', $return->id)->get() as $rep) {
                     $product = Product::find($rep->product_id);
                     if ($product) {
-                        $product->decrement('shop_quantity_in_sales_unit', $rep->quantity);
+                        $product->decrement('shop_quantity', $rep->quantity);
                         ProductMovement::recordMovement(
                             $rep->product_id,
                             ProductMovement::TYPE_SALE,
@@ -874,7 +874,7 @@ class ReturnController extends Controller
             foreach (SalesReturnProduct::where('sales_return_id', $return->id)->get() as $returnProduct) {
                 $product = Product::find($returnProduct->product_id);
                 if ($product) {
-                    $product->increment('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                    $product->increment('shop_quantity', $returnProduct->quantity);
                     ProductMovement::recordMovement(
                         $returnProduct->product_id,
                         ProductMovement::TYPE_SALE_RETURN,
@@ -887,7 +887,7 @@ class ReturnController extends Controller
             foreach (SalesReturnReplacementProduct::where('sales_return_id', $return->id)->get() as $rep) {
                 $product = Product::find($rep->product_id);
                 if ($product) {
-                    $product->decrement('shop_quantity_in_sales_unit', $rep->quantity);
+                    $product->decrement('shop_quantity', $rep->quantity);
                     ProductMovement::recordMovement(
                         $rep->product_id,
                         ProductMovement::TYPE_SALE,
@@ -903,7 +903,7 @@ class ReturnController extends Controller
             foreach (SalesReturnProduct::where('sales_return_id', $return->id)->get() as $returnProduct) {
                 $product = Product::find($returnProduct->product_id);
                 if ($product) {
-                    $product->increment('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                    $product->increment('shop_quantity', $returnProduct->quantity);
                     ProductMovement::recordMovement(
                         $returnProduct->product_id,
                         ProductMovement::TYPE_SALE_RETURN,
@@ -1063,7 +1063,7 @@ class ReturnController extends Controller
                 foreach ($return->products as $oldProduct) {
                     $product = Product::find($oldProduct->product_id);
                     if ($product) {
-                        $product->decrement('shop_quantity_in_sales_unit', $oldProduct->quantity);
+                        $product->decrement('shop_quantity', $oldProduct->quantity);
                         
                         // Record product movement (reverse)
                         ProductMovement::recordMovement(
@@ -1108,7 +1108,7 @@ class ReturnController extends Controller
                     foreach ($request->products as $productData) {
                         $product = Product::find($productData['product_id']);
                         if ($product) {
-                            $product->increment('shop_quantity_in_sales_unit', $productData['quantity']);
+                            $product->increment('shop_quantity', $productData['quantity']);
                             
                             // Record product movement
                             ProductMovement::recordMovement(
@@ -1142,7 +1142,7 @@ class ReturnController extends Controller
                 foreach ($return->products as $returnProduct) {
                     $product = Product::find($returnProduct->product_id);
                     if ($product) {
-                        $product->decrement('shop_quantity_in_sales_unit', $returnProduct->quantity);
+                        $product->decrement('shop_quantity', $returnProduct->quantity);
                         
                         // Record product movement (reverse)
                         ProductMovement::recordMovement(
