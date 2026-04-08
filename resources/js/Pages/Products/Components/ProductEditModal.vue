@@ -65,44 +65,28 @@
                   }}</span>
                 </div>
 
-                <!-- Brand -->
+                <!-- Brand with Searchable Dropdown -->
                 <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Brand</label
                   >
-                  <select
+                  <SearchableSelect
                     v-model="form.brand_id"
-                    class="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select Brand</option>
-                    <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-                      {{ brand.name }}
-                    </option>
-                  </select>
+                    :options="brandOptions"
+                    placeholder="Search brands..."
+                  />
                 </div>
 
-                <!-- Category -->
+                <!-- Category with Searchable Dropdown -->
                 <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Category</label
                   >
-                  <select
+                  <SearchableSelect
                     v-model="form.category_id"
-                    class="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select Category</option>
-                    <option
-                      v-for="category in categories"
-                      :key="category.id"
-                      :value="category.id"
-                    >
-                      {{
-                        category.hierarchy_string
-                          ? category.hierarchy_string + " → " + category.name
-                          : category.name
-                      }}
-                    </option>
-                  </select>
+                    :options="categoryOptions"
+                    placeholder="Search categories..."
+                  />
                 </div>
 
                 <!-- Type -->
@@ -250,7 +234,7 @@
             <div class="p-4 bg-white rounded-xl shadow-sm border border-gray-200">
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <!-- Purchase Unit -->
-                <div>
+                <!-- <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Purchase Unit</label
                   >
@@ -267,10 +251,10 @@
                       {{ unit.name }}
                     </option>
                   </select>
-                </div>
+                </div> -->
 
                 <!-- Transfer Unit -->
-                <div>
+                <!-- <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Transfer Unit</label
                   >
@@ -287,9 +271,9 @@
                       {{ unit.name }}
                     </option>
                   </select>
-                </div>
+                </div> -->
                 <!-- Sales Unit -->
-                <div>
+                <!-- <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Sales Unit</label
                   >
@@ -306,7 +290,7 @@
                       {{ unit.name }}
                     </option>
                   </select>
-                </div>
+                </div> -->
 
                 <!-- Storage Stock Quantity (now: Store Quantity) -->
                 <!-- <div>
@@ -327,7 +311,7 @@
                 </div> -->
 
                 <!-- Store Low Stock Alert -->
-                <div>
+                <!-- <div>
                   <label class="block mb-2 text-sm font-medium text-gray-700"
                     >Store Low Stock Alert
                     <span v-if="form.purchase_unit_id" class="text-blue-600">
@@ -340,9 +324,7 @@
                     class="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0"
                   />
-                </div>
-
-                <div></div>
+                </div> -->
 
                 <!-- Shop Quantity -->
                 <!-- <div>
@@ -381,65 +363,7 @@
           </div>
 
           <!-- Conversion Rates Section -->
-          <div class="mb-6">
-            <h3
-              class="mb-4 text-lg font-semibold text-purple-600 flex items-center gap-2"
-            >
-              🔄 Unit Conversion Rates
-            </h3>
-            <div class="p-4 bg-white rounded-xl shadow-sm border border-gray-200">
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <!-- Purchase to Transfer Rate -->
-                <div>
-                  <label class="block mb-2 text-sm font-medium text-gray-700">
-                    Purchase → Transfer Rate
-                    <span
-                      v-if="form.purchase_unit_id && form.transfer_unit_id"
-                      class="text-blue-600"
-                    >
-                      (1 {{ getPurchaseUnitName(form.purchase_unit_id) }} = ?
-                      {{ getTransferUnitName(form.transfer_unit_id) }})
-                    </span>
-                  </label>
-                  <input
-                    v-model.number="form.purchase_to_transfer_rate"
-                    type="number"
-                    step="0.01"
-                    class="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="1.00"
-                  />
-                  <span class="text-xs text-gray-500"
-                    >How many transfer units in one purchase unit</span
-                  >
-                </div>
-
-                <!-- Transfer to Sales Rate -->
-                <div>
-                  <label class="block mb-2 text-sm font-medium text-gray-700">
-                    Transfer → Sales Rate
-                    <span
-                      v-if="form.transfer_unit_id && form.sales_unit_id"
-                      class="text-blue-600"
-                    >
-                      (1 {{ getTransferUnitName(form.transfer_unit_id) }} = ?
-                      {{ getSalesUnitName(form.sales_unit_id) }})
-                    </span>
-                  </label>
-                  <input
-                    v-model.number="form.transfer_to_sales_rate"
-                    type="number"
-                    step="0.01"
-                    class="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="1.00"
-                  />
-                  <span class="text-xs text-gray-500"
-                    >How many sales units in one transfer unit</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
+          
           <!-- Additional Options Section -->
           <div class="mb-6">
             <h3
@@ -526,6 +450,7 @@ import { ref, watch, onUnmounted, computed } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { router } from "@inertiajs/vue3";
 import Modal from "@/Components/Modal.vue";
+import SearchableSelect from "@/Pages/Products/Components/SearchableSelect.vue";
 
 const page = usePage();
 
@@ -853,6 +778,28 @@ watch(
   //     }
   // }
 //};
+
+// Computed properties for filtered Brand and Category options
+// Convert brands to searchable format
+const brandOptions = computed(() => {
+  return brands.value.map(brand => ({
+    id: brand.id,
+    label: brand.name,
+    name: brand.name
+  }));
+});
+
+// Convert categories to searchable format
+const categoryOptions = computed(() => {
+  return categories.value.map(category => ({
+    id: category.id,
+    label: category.hierarchy_string
+      ? category.hierarchy_string + ' → ' + category.name
+      : category.name,
+    name: category.name,
+    hierarchy_string: category.hierarchy_string
+  }));
+});
 
 const closeModal = () => {
   emit("update:open", false);

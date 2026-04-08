@@ -69,83 +69,26 @@
               }}</span>
             </div>
 
+            <!-- Brand with Searchable Dropdown -->
             <div class="min-w-0">
               <label class="block mb-2 text-sm font-medium text-gray-700">Brand</label>
-              <div class="flex gap-2">
-                <select
-                  v-model="form.brand_id"
-                  class="flex-1 min-w-0 px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  title="Select Brand"
-                >
-                  <option value="">Select Brand</option>
-                  <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-                    {{ brand.name }}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  @click="openBrandModal"
-                  class="px-3 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 flex-shrink-0"
-                  title="Add New Brand"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
+              <SearchableSelect
+                v-model="form.brand_id"
+                :options="brandOptions"
+                placeholder="Search brands..."
+                :add-button-action="openBrandModal"
+              />
             </div>
 
-            <!-- Category -->
+            <!-- Category with Searchable Dropdown -->
             <div class="min-w-0">
               <label class="block mb-2 text-sm font-medium text-gray-700">Category</label>
-              <div class="flex gap-2">
-                <select
-                  v-model="form.category_id"
-                  class="flex-1 min-w-0 px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  title="Select Category"
-                >
-                  <option value="">Select Category</option>
-                  <option
-                    v-for="category in categories"
-                    :key="category.id"
-                    :value="category.id"
-                  >
-                    {{ category.hierarchy_string ? category.hierarchy_string + ' → ' + category.name : category.name }}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  @click="openCategoryModal"
-                  class="px-3 py-2.5 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200 flex-shrink-0"
-                  title="Add New Category"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
+              <SearchableSelect
+                v-model="form.category_id"
+                :options="categoryOptions"
+                placeholder="Search categories..."
+                :add-button-action="openCategoryModal"
+              />
             </div>
 
             <!-- Type -->
@@ -557,6 +500,7 @@ import { useForm } from "@inertiajs/vue3";
 import { logActivity } from "@/composables/useActivityLog";
 import Modal from "@/Components/Modal.vue";
 import QuickAddModal from "@/Pages/Products/Components/QuickAddModal.vue";
+import SearchableSelect from "@/Pages/Products/Components/SearchableSelect.vue";
 
 // Track which field opened the unit modal (purchase/sales/transfer)
 const unitTargetField = ref(null);
@@ -650,7 +594,26 @@ const getTransferUnitName = (unitId) => {
   const unit = props.measurementUnits.find((u) => u.id === unitId);
   return unit ? unit.name : "";
 };
+// Convert brands to searchable format
+const brandOptions = computed(() => {
+  return props.brands.map(brand => ({
+    id: brand.id,
+    label: brand.name,
+    name: brand.name
+  }));
+});
 
+// Convert categories to searchable format
+const categoryOptions = computed(() => {
+  return props.categories.map(category => ({
+    id: category.id,
+    label: category.hierarchy_string
+      ? category.hierarchy_string + ' → ' + category.name
+      : category.name,
+    name: category.name,
+    hierarchy_string: category.hierarchy_string
+  }));
+});
 // Computed property for purchase unit display name
 const purchaseUnitDisplayName = computed(() => {
   return getPurchaseUnitName(form.purchase_unit_id);
