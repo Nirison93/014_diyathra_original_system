@@ -13,6 +13,7 @@ use App\Models\MeasurementUnit;
 use App\Models\ProductAvailableQuantity;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 /**
  * GoodReceiveNoteController
@@ -62,6 +63,20 @@ class GoodReceiveNoteController extends Controller
         
         // Load measurement units for display purposes
         $measurementUnits = MeasurementUnit::orderBy('name')->get();
+
+        // GRN Statistics for the summary box
+        $grnStats = [
+            'total' => GoodsReceivedNote::count(),
+            'this_month' => GoodsReceivedNote::whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->count(),
+            'total_value' => GoodsReceivedNote::sum('subtotal') ?? 0,
+            'recent' => GoodsReceivedNote::select('id', 'goods_received_note_no', 'subtotal', 'created_at')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get(),
+        ];
+
         return Inertia::render('GoodsReceivedNotes/Index', [
             'goodsReceivedNotes' => $goodsReceivedNotes,
             'measurementUnits' => $measurementUnits,
@@ -69,6 +84,7 @@ class GoodReceiveNoteController extends Controller
             'availableProducts' => $products,
             'grnNumber' => $this->generateGoodReceiveNoteNumber(),
             'currencySymbol' => $currencySymbol,
+            'grnStats' => $grnStats,
         ]);
     }
 

@@ -66,6 +66,9 @@
         </div>
       </div>
 
+      <!-- GRN Data View Statistics Boxes -->
+      
+
       <!-- Products Table Container -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6">
         <table class="w-full text-left border-collapse">
@@ -364,6 +367,15 @@ const props = defineProps({
   taxes: {
     type: Array,
     required: true,
+  },
+  grnStats: {
+    type: Object,
+    default: () => ({
+      total: 0,
+      this_month: 0,
+      total_value: 0,
+      recent: [],
+    }),
   },
   filters: {
     type: Object,

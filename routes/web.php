@@ -257,6 +257,9 @@ Route::middleware(['auth', 'role:0,1,2,3'])->group(function () {
         // Order History Report - Sales income and returns transactions
         Route::get('/sales-income', [ReportController::class, 'salesIncomeReport'])->name('sales-income');
 
+        // Cash Drawer Report - user-wise drawer sessions and balances
+        Route::get('/cash-drawer', [ReportController::class, 'cashDrawerReport'])->name('cash-drawer');
+
         // Sync Report - Sync activity logs
         Route::get('/sync', [\App\Http\Controllers\SyncReportController::class, 'index'])->name('sync');
         Route::get('/export/sync/pdf', [\App\Http\Controllers\SyncReportController::class, 'exportPdf'])->name('export.sync.pdf');

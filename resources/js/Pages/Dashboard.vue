@@ -15,13 +15,21 @@ const pageTitle = computed(() => {
   return appName;
 });
 
-// Set default tab based on user role
+// Role-based tab access and defaults
+const isTabAllowed = (tab, userRole) => {
+  if (tab === "products") return [0, 1, 3].includes(userRole);
+  if (tab === "stores") return [0, 1, 3, 4].includes(userRole);
+  if (tab === "shops") return [0, 1, 2, 3].includes(userRole);
+  if (tab === "reports") return [0, 1, 2, 3].includes(userRole);
+  if (tab === "settings") return ![2, 3].includes(userRole);
+  return false;
+};
+
 const getDefaultTab = () => {
   const userRole = page.props.auth.user.role;
-  if ([0, 1, 3].includes(userRole)) {
-    return "products"; // Products section for these roles
-  }
-  return "shops"; // Default to shops for other roles
+  if ([0, 1, 3].includes(userRole)) return "products";
+  if ([4].includes(userRole)) return "stores";
+  return "shops";
 };
 
 // Track active tab
@@ -30,14 +38,17 @@ const activeTab = ref(getDefaultTab());
 // Switch tabs and persist selection
 const setActiveTab = (tab) => {
   activeTab.value = tab;
+  localStorage.setItem("activeTab", tab);
+  sessionStorage.setItem("fromNavigation", "true");
 };
 
 // Set default tab on mount
 onMounted(() => {
   const savedTab = localStorage.getItem("activeTab");
   const fromNavigation = sessionStorage.getItem("fromNavigation");
+  const userRole = page.props.auth.user.role;
 
-  if (savedTab && fromNavigation === "true") {
+  if (savedTab && fromNavigation === "true" && isTabAllowed(savedTab, userRole)) {
     activeTab.value = savedTab;
     sessionStorage.removeItem("fromNavigation");
   } else {
@@ -91,6 +102,7 @@ onMounted(() => {
           </button>
 
           <button
+            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
             @click="setActiveTab('shops')"
             :class="[
               activeTab === 'shops'
@@ -203,6 +215,16 @@ onMounted(() => {
             <div class="font-semibold text-gray-900 mb-1">Suppliers</div>
             <div class="text-sm text-gray-600">Manage supplier information</div>
           </Link>
+
+          <Link
+            v-if="[0, 1 ,3].includes($page.props.auth.user.role)"
+            :href="route('good-receive-notes.index')"
+            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <div class="text-3xl mb-3">📦</div>
+            <div class="font-semibold text-gray-900 mb-1">GRN</div>
+            <div class="text-sm text-gray-600">View GRN data & create notes</div>
+          </Link>
         </div>
       </div>
 
@@ -297,8 +319,12 @@ onMounted(() => {
       </div>
 
       <!-- Shops Section -->
-      <div
+      <!-- <div
         v-if="activeTab === 'shops'"
+        class="px-4 sm:px-6 lg:px-8 mb-8"
+      > -->
+      <div
+        v-if="activeTab === 'shops' && [0, 1, 2,3].includes($page.props.auth.user.role)"
         class="px-4 sm:px-6 lg:px-8 mb-8"
       >
         <h3
@@ -308,7 +334,7 @@ onMounted(() => {
         </h3>
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           <Link
-            v-if="[0, 1].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             :href="route('customers.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -318,7 +344,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             :href="route('discounts.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -328,7 +354,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             :href="route('taxes.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -338,7 +364,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
             :href="route('sales.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -348,7 +374,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
             :href="route('sales.all')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -358,7 +384,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             :href="route('quotations.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -368,7 +394,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             :href="route('quotation.edit')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -398,7 +424,7 @@ onMounted(() => {
           </a>
 
           <Link
-            v-if="[0, 1].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
             :href="route('return.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -469,6 +495,16 @@ onMounted(() => {
             <div class="text-3xl mb-3">💰</div>
             <div class="font-semibold text-gray-900 mb-1">Order History</div>
             <div class="text-sm text-gray-600">Sales & returns transactions</div>
+          </Link>
+
+          <Link
+            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
+            :href="route('reports.cash-drawer')"
+            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <div class="text-3xl mb-3">🧾</div>
+            <div class="font-semibold text-gray-900 mb-1">Cash Drawer Report</div>
+            <div class="text-sm text-gray-600">Track open/close sessions by user</div>
           </Link>
 
           <Link

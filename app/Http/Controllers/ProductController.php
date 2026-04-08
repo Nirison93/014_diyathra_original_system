@@ -13,10 +13,12 @@ use App\Models\Tax;
 use App\Models\Unit;
 use App\Models\ActivityLog;
 use App\Models\ProductAvailableQuantity;
+use App\Models\GoodsReceivedNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class ProductController extends Controller
 {
@@ -117,6 +119,20 @@ class ProductController extends Controller
             ->get();
 
         $currencySymbol = CompanyInformation::first();
+
+        // GRN Statistics for the summary box
+        $grnStats = [
+            'total' => GoodsReceivedNote::count(),
+            'this_month' => GoodsReceivedNote::whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->count(),
+            'total_value' => GoodsReceivedNote::sum('subtotal') ?? 0,
+            'recent' => GoodsReceivedNote::select('id', 'goods_received_note_no', 'subtotal', 'created_at')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get(),
+        ];
+
         return Inertia::render('Products/Index', [
             'products' => $products,
             'brands' => $brands,
@@ -126,6 +142,7 @@ class ProductController extends Controller
             'discounts' => $discounts,
             'currencySymbol' => $currencySymbol,
             'taxes' => $taxes,
+            'grnStats' => $grnStats,
             'filters' => [
                 'search' => $search,
             ],

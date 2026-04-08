@@ -15,6 +15,8 @@ use App\Models\CompanyInformation;
 use App\Models\ProductMovement;
 use App\Models\SalesProduct;
 use App\Models\SalesReturnProduct;
+use App\Models\CashDrawer;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -38,6 +40,93 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class ReportController extends Controller
 {
+    /**
+     * Cash drawer usage report by user and session.
+     */
+    public function cashDrawerReport(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->toDateString());
+        $userId = $request->input('user_id');
+
+        $sessionsQuery = CashDrawer::with('user:id,name')
+            ->whereBetween('date', [$startDate, $endDate]);
+
+        if (!empty($userId)) {
+            $sessionsQuery->where('user_id', $userId);
+        }
+
+        $sessions = $sessionsQuery
+            ->orderByDesc('date')
+            ->orderByDesc('opened_at')
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'user_name' => $item->user->name ?? 'N/A',
+                    'date' => optional($item->date)->toDateString(),
+                    'opening_balance' => (float) $item->opening_balance,
+                    'closing_balance' => $item->closing_balance !== null ? (float) $item->closing_balance : null,
+                    'opened_at' => optional($item->opened_at)?->format('Y-m-d H:i:s'),
+                    'closed_at' => optional($item->closed_at)?->format('Y-m-d H:i:s'),
+                    'status' => $item->status,
+                    'duration_minutes' => ($item->opened_at && $item->closed_at)
+                        ? $item->opened_at->diffInMinutes($item->closed_at)
+                        : null,
+                ];
+            });
+
+        $summaryQuery = CashDrawer::query()
+            ->leftJoin('users', 'cash_drawers.user_id', '=', 'users.id')
+            ->whereBetween('cash_drawers.date', [$startDate, $endDate]);
+
+        if (!empty($userId)) {
+            $summaryQuery->where('cash_drawers.user_id', $userId);
+        }
+
+        $userSummary = $summaryQuery
+            ->groupBy('cash_drawers.user_id', 'users.name')
+            ->select([
+                'cash_drawers.user_id',
+                'users.name as user_name',
+                DB::raw('COUNT(*) as sessions_count'),
+                DB::raw("SUM(CASE WHEN cash_drawers.status = 'open' THEN 1 ELSE 0 END) as open_sessions"),
+                DB::raw("SUM(CASE WHEN cash_drawers.status = 'closed' THEN 1 ELSE 0 END) as closed_sessions"),
+                DB::raw('SUM(cash_drawers.opening_balance) as total_opening'),
+                DB::raw('SUM(COALESCE(cash_drawers.closing_balance, 0)) as total_closing'),
+                DB::raw('MAX(cash_drawers.opened_at) as last_opened_at'),
+            ])
+            ->orderByDesc('sessions_count')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'user_name' => $item->user_name ?? 'N/A',
+                    'sessions_count' => (int) $item->sessions_count,
+                    'open_sessions' => (int) $item->open_sessions,
+                    'closed_sessions' => (int) $item->closed_sessions,
+                    'total_opening' => (float) $item->total_opening,
+                    'total_closing' => (float) $item->total_closing,
+                    'last_opened_at' => $item->last_opened_at ? Carbon::parse($item->last_opened_at)->format('Y-m-d H:i:s') : null,
+                ];
+            });
+
+        $users = User::select('id', 'name')->orderBy('name')->get();
+        $currencySymbol = CompanyInformation::first();
+
+        return Inertia::render('Reports/CashDrawerReport', [
+            'sessions' => $sessions,
+            'userSummary' => $userSummary,
+            'users' => $users,
+            'filters' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'user_id' => $userId,
+            ],
+            'currencySymbol' => $currencySymbol,
+        ]);
+    }
+
     /**
      * Display the main reports dashboard
      *

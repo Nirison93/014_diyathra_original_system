@@ -23,6 +23,75 @@
         </a>
       </div>
 
+      <div class="mb-6 grid grid-cols-4 gap-4">
+        <!-- Total GRNs Box -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Total GRNs</p>
+              <p class="text-3xl font-bold text-blue-600 mt-2">{{ grnStats.total }}</p>
+            </div>
+            <div class="p-3 bg-blue-100 rounded-lg">
+              <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3a1 1 0 000 2h1.623l2.472 9.887A1 1 0 0010 16.5h1a1 1 0 001-1v-1h6v1a1 1 0 001 1h2a1 1 0 100-2h-1v-3a1 1 0 00-1-1h-1.623l.244-.976A1 1 0 0012 9.329V6h1a1 1 0 100-2H6.28l-.31-1.243A1 1 0 005 2H3z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- This Month's GRNs Box -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">This Month</p>
+              <p class="text-3xl font-bold text-green-600 mt-2">{{ grnStats.this_month }}</p>
+            </div>
+            <div class="p-3 bg-green-100 rounded-lg">
+              <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Value Box -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Total Value</p>
+              <p class="text-3xl font-bold text-purple-600 mt-2">{{ currencySymbol.currency_symbol }}{{ Number(grnStats.total_value ?? 0).toFixed(2) }}</p>
+            </div>
+            <div class="p-3 bg-purple-100 rounded-lg">
+              <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.16 5.314l6.526-3.674a.5.5 0 01.693.294l2.742 10.368c.34 1.293-.608 2.557-1.922 2.557h-8.5l-3.468-12a.5.5 0 01 .295-.694z" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent GRNs Count Box -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-medium">Recent GRNs</p>
+              <p class="text-3xl font-bold text-orange-600 mt-2">{{ grnStats.recent.length }}</p>
+              <div class="mt-3 space-y-1">
+                <p v-for="grn in grnStats.recent.slice(0, 2)" :key="grn.id" class="text-xs text-gray-500">
+                  #{{ grn.goods_received_note_no }}
+                </p>
+              </div>
+            </div>
+            <div class="p-3 bg-orange-100 rounded-lg">
+              <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000-2H6a1 1 0 00-1 1v1H4a1 1 0 000 2h8a1 1 0 100-2H9V3a1 1 0 00-1-1H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V5a1 1 0 100 2h1a1 1 0 100-2h-1V5a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V5a1 1 0 100-2z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Goods Received Notes Table Container -->
       <div class="bg-white rounded-2xl border border-gray-200 p-6">
         <table class="w-full text-left border-collapse">
@@ -178,6 +247,16 @@ defineProps({
   availableProducts: Array,
   grnNumber: String,
   measurementUnits: Array,
+  currencySymbol: Object,
+  grnStats: {
+    type: Object,
+    default: () => ({
+      total: 0,
+      this_month: 0,
+      total_value: 0,
+      recent: [],
+    }),
+  },
 });
 
 const isCreateModalOpen = ref(false);

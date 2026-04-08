@@ -67,17 +67,29 @@ class SaleController extends Controller
         $currencySymbol  = CompanyInformation::first();
 
         $cashDrawer = CashDrawer::where('user_id', $userId)
-            ->whereDate('date', $today)
+            ->where('status', 'open')
+            ->orderByDesc('opened_at')
             ->first();
 
-        $salesTotal = (float) Sale::where('user_id', $userId)
-            ->whereDate('sale_date', $today)
-            ->sum('net_amount');
+        if ($cashDrawer && $cashDrawer->opened_at) {
+            $salesTotal = (float) Sale::where('user_id', $userId)
+                ->whereBetween('created_at', [$cashDrawer->opened_at, now()])
+                ->sum('net_amount');
 
-        $cashExpenses = (float) Expense::where('user_id', $userId)
-            ->whereDate('expense_date', $today)
-            ->where('payment_type', 0)
-            ->sum('amount');
+            $cashExpenses = (float) Expense::where('user_id', $userId)
+                ->whereBetween('created_at', [$cashDrawer->opened_at, now()])
+                ->where('payment_type', 0)
+                ->sum('amount');
+        } else {
+            $salesTotal = (float) Sale::where('user_id', $userId)
+                ->whereDate('sale_date', $today)
+                ->sum('net_amount');
+
+            $cashExpenses = (float) Expense::where('user_id', $userId)
+                ->whereDate('expense_date', $today)
+                ->where('payment_type', 0)
+                ->sum('amount');
+        }
 
         $openingBalance = $cashDrawer ? (float) $cashDrawer->opening_balance : 0;
         $expectedBalance = $openingBalance + $salesTotal - $cashExpenses;
@@ -136,7 +148,8 @@ class SaleController extends Controller
     {
         $today = Carbon::today()->toDateString();
         $todayDrawer = CashDrawer::where('user_id', Auth::id())
-            ->whereDate('date', $today)
+            ->where('status', 'open')
+            ->orderByDesc('opened_at')
             ->first();
 
         if (!$todayDrawer || $todayDrawer->status !== 'open') {
