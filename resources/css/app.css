@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html.dark body {
+		background-color: #0f172a;
+		color: #e5e7eb;
+	}
+}
+
+@layer utilities {
+	.dark .bg-white {
+		background-color: #111827 !important;
+	}
+
+	.dark .bg-gray-50 {
+		background-color: #1f2937 !important;
+	}
+
+	.dark .bg-gray-100 {
+		background-color: #374151 !important;
+	}
+
+	.dark .text-gray-900 {
+		color: #f9fafb !important;
+	}
+
+	.dark .text-gray-800 {
+		color: #e5e7eb !important;
+	}
+
+	.dark .text-gray-700 {
+		color: #d1d5db !important;
+	}
+
+	.dark .text-gray-600,
+	.dark .text-gray-500 {
+		color: #9ca3af !important;
+	}
+
+	.dark .border-gray-100,
+	.dark .border-gray-200,
+	.dark .border-gray-300 {
+		border-color: #374151 !important;
+	}
+
+	.dark .hover\:bg-gray-50:hover,
+	.dark .hover\:bg-gray-100:hover {
+		background-color: #374151 !important;
+	}
+
+	.dark .hover\:text-gray-900:hover {
+		color: #f9fafb !important;
+	}
+
+	.dark .hover\:border-gray-300:hover {
+		border-color: #4b5563 !important;
+	}
+
+	.dark .shadow-sm,
+	.dark .shadow-md,
+	.dark .shadow-lg,
+	.dark .shadow-xl {
+		--tw-shadow-color: rgba(0, 0, 0, 0.45);
+	}
+}

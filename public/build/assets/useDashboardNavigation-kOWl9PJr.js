@@ -1,0 +1,1 @@
+import{x as s}from"./app-C9z9CPS7.js";function b(){const o=t=>{localStorage.setItem("activeTab",t),sessionStorage.setItem("fromNavigation","true"),s.visit(route("dashboard"))};return{goBackToDashboard:o,goToProductsTab:()=>o("products"),goToStoresTab:()=>o("stores"),goToShopsTab:()=>o("shops"),goToReportsTab:()=>o("reports"),goToSettingsTab:()=>o("settings")}}export{b as u};
