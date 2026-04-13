@@ -18,7 +18,7 @@ const pageTitle = computed(() => {
 // Role-based tab access and defaults
 const isTabAllowed = (tab, userRole) => {
   if (tab === "products") return [0, 1, 3].includes(userRole);
-  if (tab === "stores") return [0, 1, 3, 4].includes(userRole);
+//   if (tab === "stores") return [0, 1, 3, 4].includes(userRole);
   if (tab === "shops") return [0, 1, 2, 3].includes(userRole);
   if (tab === "reports") return [0, 1, 2, 3].includes(userRole);
   if (tab === "settings") return ![2, 3].includes(userRole);
@@ -72,7 +72,7 @@ onMounted(() => {
 
       <!-- Tab Navigation -->
       <div class="px-4 sm:px-6 lg:px-8 mb-8 pt-6">
-        <div class="flex flex-wrap justify-center gap-3 pb-3">
+        <div class="relative z-10 flex flex-wrap justify-center gap-3 pb-3">
           <button
             v-if="[0, 1, 3].includes($page.props.auth.user.role)"
             @click="setActiveTab('products')"
@@ -87,8 +87,9 @@ onMounted(() => {
             <span class="hidden sm:inline">Products</span>
           </button>
 
-          <button
-            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
+          <!-- <button
+            type="button"
+            v-if="[0, 1, 3, 4].includes($page.props.auth.user.role)"
             @click="setActiveTab('stores')"
             :class="[
               activeTab === 'stores'
@@ -99,9 +100,10 @@ onMounted(() => {
           >
             <span>🛒</span>
             <span class="hidden sm:inline">Stores</span>
-          </button>
+          </button> -->
 
           <button
+            type="button"
             v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
             @click="setActiveTab('shops')"
             :class="[
@@ -199,7 +201,7 @@ onMounted(() => {
           <Link
             v-if="[0, 1].includes($page.props.auth.user.role)"
             :href="route('measurement-units.index')"
-            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
+            class=" hidden  group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
             <div class="text-3xl mb-3">📏</div>
             <div class="font-semibold text-gray-900 mb-1">Units</div>
@@ -229,7 +231,7 @@ onMounted(() => {
       </div>
 
       <!-- Stores Section -->
-      <div
+      <!-- <div
         v-if="activeTab === 'stores' && [0, 1, 3, 4].includes($page.props.auth.user.role)"
         class="px-4 sm:px-6 lg:px-8 mb-8"
       >
@@ -241,28 +243,6 @@ onMounted(() => {
         <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
 
 
-           <Link
-            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
-            :href="route('store-inventory.index')"
-            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <div class="text-3xl mb-3">📊</div>
-            <div class="font-semibold text-gray-900 mb-1">Inventory</div>
-            <div class="text-sm text-gray-600">Track store adjustments</div>
-          </Link>
-
-
-          <Link
-            v-if="[0, 1, 3].includes($page.props.auth.user.role)"
-            :href="route('purchase-order-requests.index')"
-              class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <div class="text-3xl mb-3">📋</div>
-            <div class="font-semibold text-gray-900 mb-1">
-              Purchase Orders
-            </div>
-            <div class="text-sm text-gray-600">Manage purchase orders</div>
-          </Link>
 
 
           <Link
@@ -291,19 +271,7 @@ onMounted(() => {
             </div>
           </Link>
 
-          <Link
-            v-if="[0, 1, 3,4].includes($page.props.auth.user.role)"
-            :href="route('product-release-notes.index')"
-              class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <div class="text-3xl mb-3">📝</div>
-            <div class="font-semibold text-gray-900 mb-1">
-              Transfer Release
-            </div>
-            <div class="text-sm text-gray-600">
-              Manage goods transfers
-            </div>
-          </Link>
+
 
           <Link
             v-if="[0, 1].includes($page.props.auth.user.role)"
@@ -316,7 +284,7 @@ onMounted(() => {
           </Link>
 
         </div>
-      </div>
+      </div> -->
 
       <!-- Shops Section -->
       <!-- <div
@@ -364,7 +332,7 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
+            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
             :href="route('sales.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
@@ -374,8 +342,8 @@ onMounted(() => {
           </Link>
 
           <Link
-            v-if="[0, 1, 2, 3].includes($page.props.auth.user.role)"
-            :href="route('sales.all')"
+            v-if="[0, 1, 2].includes($page.props.auth.user.role)"
+            :href="route().has('sales.all') ? route('sales.all') : route('sales.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
             <div class="text-3xl mb-3">📜</div>
@@ -403,7 +371,7 @@ onMounted(() => {
             <div class="text-sm text-gray-600">Update quotations</div>
           </Link>
 
-          <Link
+          <!-- <Link
             v-if="[0, 1].includes($page.props.auth.user.role)"
             :href="route('product-transfer-requests.index')"
             class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
@@ -411,7 +379,7 @@ onMounted(() => {
             <div class="text-3xl mb-3">📤</div>
             <div class="font-semibold text-gray-900 mb-1">Transfer Requests</div>
             <div class="text-sm text-gray-600">Manage transfer requests</div>
-          </Link>
+          </Link> -->
 
           <a
             v-if="[0, 1].includes($page.props.auth.user.role)"
@@ -431,6 +399,16 @@ onMounted(() => {
             <div class="text-3xl mb-3">↩️</div>
             <div class="font-semibold text-gray-900 mb-1">Sales Returns</div>
             <div class="text-sm text-gray-600">Manage sales returns</div>
+          </Link>
+
+           <Link
+            v-if="[0, 1].includes($page.props.auth.user.role)"
+            :href="route('reports.expenses')"
+            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
+          >
+            <div class="text-3xl mb-3">💸</div>
+            <div class="font-semibold text-gray-900 mb-1">Supplier Payments</div>
+            <div class="text-sm text-gray-600">Payment details & summary</div>
           </Link>
         </div>
       </div>
@@ -477,15 +455,7 @@ onMounted(() => {
             <div class="text-sm text-gray-600">Current inventory status</div>
           </Link>
 
-          <Link
-            v-if="[0, 1].includes($page.props.auth.user.role)"
-            :href="route('reports.expenses')"
-            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <div class="text-3xl mb-3">💸</div>
-            <div class="font-semibold text-gray-900 mb-1">Supplier Payments</div>
-            <div class="text-sm text-gray-600">Payment details & summary</div>
-          </Link>
+
 
           <Link
             v-if="[0, 1, 2].includes($page.props.auth.user.role)"
@@ -594,15 +564,15 @@ onMounted(() => {
             <div class="text-sm text-gray-600">Company information & settings</div>
           </Link> -->
 
-          <Link
+          <!-- <Link hidden
             v-if="[0, 1].includes($page.props.auth.user.role)"
             :href="route('users.index')"
-            class="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
+            class=" group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-300"
           >
             <div class="text-3xl mb-3">📏</div>
             <div class="font-semibold text-gray-900 mb-1">Units</div>
             <div class="text-sm text-gray-600">Manage measurement units</div>
-          </Link>
+          </Link> -->
 
           <Link
             :href="route('settings.app')"

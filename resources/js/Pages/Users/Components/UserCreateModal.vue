@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -31,7 +31,7 @@
                 as="h3"
                 class="text-lg font-semibold leading-6 text-blue-700"
               >
-             ✨ Add New User
+             âœ¨ Add New User
               </DialogTitle>
 
               <form @submit.prevent="submit" class="mt-4">
@@ -112,7 +112,7 @@
                     :disabled="form.processing"
                     class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {{ form.processing ? '✨ Creating...' : '✨ Create User' }}
+                    {{ form.processing ? 'âœ¨ Creating...' : 'âœ¨ Create User' }}
                   </button>
                 </div>
               </form>
@@ -168,3 +168,4 @@ const closeModal = () => {
   form.clearErrors();
 };
 </script>
+

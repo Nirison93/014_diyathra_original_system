@@ -37,7 +37,7 @@ class SaleController extends Controller
         $nextInvoiceNo = $lastSale ? 'INV-' . str_pad($lastSale->id + 1, 6, '0', STR_PAD_LEFT) : 'INV-000001';
 
         $products = Product::select('id', 'name', 'barcode', 'retail_price', 'wholesale_price', 'shop_quantity', 'shop_low_stock_margin', 'image', 'brand_id', 'category_id', 'type_id', 'discount_id', 'sales_unit_id')
-          
+
             ->with(['brand:id,name', 'category:id,name', 'type:id,name', 'discount:id,name,value,type','salesUnit:id,name'])
             ->orderByRaw('CASE WHEN shop_quantity <= shop_low_stock_margin THEN 1 ELSE 0 END')
             ->orderBy('name')
@@ -146,6 +146,7 @@ class SaleController extends Controller
 
     public function store(Request $request)
     {
+
         $today = Carbon::today()->toDateString();
         $todayDrawer = CashDrawer::where('user_id', Auth::id())
             ->where('status', 'open')
@@ -212,21 +213,21 @@ class SaleController extends Controller
             // Proportionally distribute discount across all line items based on their subtotal
             foreach ($request->items as $item) {
                 $lineTotal = $item['price'] * $item['quantity'];
-                
+
                 // Calculate proportional discount for this line item
                 // Formula: (line_total / total_amount) * total_discount
-                $lineDiscountAmount = $totalAmount > 0 
-                    ? ($lineTotal / $totalAmount) * $discount 
+                $lineDiscountAmount = $totalAmount > 0
+                    ? ($lineTotal / $totalAmount) * $discount
                     : 0;
-                
+
                 // Net amount after discount for this line
                 $lineNetAmount = $lineTotal - $lineDiscountAmount;
-                
+
                 // Calculate discounted unit price (actual price customer pays per unit)
-                $discountedUnitPrice = $item['quantity'] > 0 
+                $discountedUnitPrice = $item['quantity'] > 0
                     ? $lineNetAmount / $item['quantity']
                     : $item['price'];
-                
+
                 SalesProduct::create([
                     'sale_id' => $sale->id,
                     'product_id' => $item['product_id'],
@@ -276,6 +277,7 @@ class SaleController extends Controller
                 ->with('success', 'Sale completed successfully! Invoice: ' . $sale->invoice_no);
 
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             return back()->with('error', 'Sale failed: ' . $e->getMessage());
         }

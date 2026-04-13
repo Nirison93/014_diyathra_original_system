@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -33,7 +33,7 @@
                   as="h3"
                   class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
                 >
-                  ✨ Add Category
+                  âœ¨ Add Category
                 </DialogTitle>
                 <button
                   type="button"
@@ -98,7 +98,7 @@
                           :key="category.id"
                           :value="category.id"
                         >
-                          {{ category.hierarchy_string ? category.hierarchy_string + ' → ' + category.name : category.name }}
+                          {{ category.hierarchy_string ? category.hierarchy_string + ' â†’ ' + category.name : category.name }}
                         </option>
                       </select>
                       <p v-if="form.errors.parent_id" class="mt-1 text-sm text-red-500">
@@ -140,7 +140,7 @@
                     :disabled="form.processing"
                     class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-[5px] hover:bg-blue-700 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
                   >
-                    {{ form.processing ? "💾 Creating..." : "💾 Save Category" }}
+                    {{ form.processing ? "ðŸ’¾ Creating..." : "ðŸ’¾ Save Category" }}
                   </button>
                 </div>
               </form>
@@ -208,3 +208,4 @@ const closeModal = () => {
   form.clearErrors();
 };
 </script>
+

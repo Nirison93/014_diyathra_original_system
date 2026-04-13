@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot as="template" :show="open">
-    <Dialog class="relative z-10" @close="$emit('update:open', false)">
+    <Dialog class="relative z-10" @close="() => {}">
       <!-- Modal Overlay -->
       <TransitionChild
         as="template"
@@ -35,7 +35,7 @@
               <DialogTitle
                 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
               >
-                ✨ Add Brand
+                âœ¨ Add Brand
               </DialogTitle>
               <button
                 type="button"
@@ -124,7 +124,7 @@
                   type="submit"
                   class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-[5px] hover:bg-blue-700 hover:shadow-lg hover:scale-105 transition-all duration-300"
                 >
-                  💾 Save Brand
+                  ðŸ’¾ Save Brand
                 </button>
               </div>
             </form>
@@ -187,3 +187,4 @@ const closeModal = () => {
   emit("update:open", false);
 };
 </script>
+

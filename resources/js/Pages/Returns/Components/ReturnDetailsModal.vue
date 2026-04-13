@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -30,7 +30,7 @@
                 <!-- Return Information -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="font-semibold text-blue-600 mb-3 flex items-center gap-2">📋 Return Information</h3>
+                    <h3 class="font-semibold text-blue-600 mb-3 flex items-center gap-2">ðŸ“‹ Return Information</h3>
                     <div class="space-y-2 text-sm">
                       <div><span class="text-gray-600">Return ID:</span> <span class="text-gray-800 font-medium">#{{ returnData.id }}</span></div>
                       <div><span class="text-gray-600">Return Date:</span> <span class="text-gray-800 font-medium">{{ returnData.return_date_formatted }}</span></div>
@@ -50,7 +50,7 @@
                     </div>
                   </div>
                   <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="font-semibold text-green-600 mb-3 flex items-center gap-2">👤 Customer & Sale Info</h3>
+                    <h3 class="font-semibold text-green-600 mb-3 flex items-center gap-2">ðŸ‘¤ Customer & Sale Info</h3>
                     <div class="space-y-2 text-sm">
                       <div><span class="text-gray-600">Customer:</span> <span class="text-gray-800 font-medium">{{ returnData.customer_name || 'Walk-in Customer' }}</span></div>
                       <div v-if="returnData.customer_phone"><span class="text-gray-600">Phone:</span> <span class="text-gray-800 font-medium">{{ returnData.customer_phone }}</span></div>
@@ -62,7 +62,7 @@
 
                 <!-- Products -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                  <h3 class="font-semibold text-green-600 mb-4 flex items-center gap-2">📦 Returned Products</h3>
+                  <h3 class="font-semibold text-green-600 mb-4 flex items-center gap-2">ðŸ“¦ Returned Products</h3>
                   <div class="overflow-x-auto">
                     <table class="w-full text-sm text-gray-700">
                       <thead class="border-b-2 border-blue-600">
@@ -104,13 +104,13 @@
                     @click="updateStatus(1)"
                     class="px-6 py-2.5 bg-green-600 text-white rounded-full hover:bg-green-700 transition font-semibold text-sm"
                   >
-                    ✅ Approve Return
+                    âœ… Approve Return
                   </button>
                   <button
                     @click="updateStatus(2)"
                     class="px-6 py-2.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition font-semibold text-sm"
                   >
-                    ❌ Reject Return
+                    âŒ Reject Return
                   </button>
                 </div>
               </div>
@@ -127,14 +127,14 @@
                   @click="printReturnReceipt(returnData)"
                   class="px-8 py-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-semibold text-sm"
                 >
-                  🖨️ Print Receipt
+                  ðŸ–¨ï¸ Print Receipt
                 </button>
               </div>
               
               <!-- Net Payment Summary -->
               <div v-if="returnData && (returnData.payment_due_label || returnData.payment_due_amount !== undefined)" class="mt-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
-                  <div class="text-gray-800 font-semibold">💰 Net Payment</div>
+                  <div class="text-gray-800 font-semibold">ðŸ’° Net Payment</div>
                   <div class="text-right">
                     <div class="text-sm text-gray-600">{{ returnData.payment_due_label || 'Settled' }}</div>
                     <div class="text-xl font-bold" :class="(returnData.payment_due_label || '').includes('Refund') ? 'text-green-600' : 'text-yellow-600'">

@@ -14,7 +14,7 @@
           @keydown.enter="selectHighlighted"
           class="w-full px-3 py-2 text-sm text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        
+
         <!-- Dropdown Menu -->
         <div
           v-if="isOpen && filteredOptions.length > 0"
@@ -125,7 +125,7 @@ const allOptions = computed(() => {
 // Filter options based on search query
 const filteredOptions = computed(() => {
   if (!searchQuery.value) return allOptions.value;
-  
+
   const query = searchQuery.value.toLowerCase();
   return allOptions.value.filter(option =>
     option.label.toLowerCase().includes(query)
@@ -140,19 +140,23 @@ const selectedLabel = computed(() => {
 
 // Update search query to show selected label when dropdown opens
 watch(() => props.modelValue, (newVal) => {
-  if (!isOpen.value && newVal) {
-    searchQuery.value = '';
+  if (!isOpen.value) {
+    if (newVal) {
+      searchQuery.value = selectedLabel.value;
+    } else {
+      searchQuery.value = '';
+    }
   }
-});
+}, { immediate: true });
 
 // Handle blur to close dropdown and clear search if no selection
 const handleBlur = () => {
   setTimeout(() => {
     // Close dropdown slightly after blur to allow click handlers to fire
     isOpen.value = false;
-    // Reset search if option is selected, otherwise keep it
+    // Keep selected value visible in the input
     if (props.modelValue) {
-      searchQuery.value = '';
+      searchQuery.value = selectedLabel.value;
     }
     highlightedIndex.value = -1;
   }, 150);
@@ -161,7 +165,7 @@ const handleBlur = () => {
 // Select an option
 const selectOption = (option) => {
   emit('update:modelValue', option.id);
-  searchQuery.value = '';
+  searchQuery.value = option.label;
   isOpen.value = false;
   highlightedIndex.value = -1;
 };

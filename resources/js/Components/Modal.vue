@@ -14,6 +14,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    staticBackdrop: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const emit = defineEmits(['close']);
@@ -40,6 +44,10 @@ watch(
 );
 
 const close = () => {
+    if (props.staticBackdrop) {
+        return;
+    }
+
     if (props.closeable) {
         emit('close');
     }
@@ -49,7 +57,7 @@ const closeOnEscape = (e) => {
     if (e.key === 'Escape') {
         e.preventDefault();
 
-        if (props.show) {
+        if (props.show && !props.staticBackdrop) {
             close();
         }
     }

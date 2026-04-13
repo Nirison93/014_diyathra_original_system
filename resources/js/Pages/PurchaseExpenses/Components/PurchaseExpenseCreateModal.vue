@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="show" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-50">
+    <Dialog as="div" @close="() => {}" class="relative z-50">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -33,7 +33,7 @@
                   as="h3"
                   class="text-2xl font-bold text-blue-600"
                 >
-                  ✨ Add New Supplier Payment
+                  âœ¨ Add New Supplier Payment
                 </DialogTitle>
                 <button type="button" @click="closeModal" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-full transition-all duration-200">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -46,7 +46,7 @@
                 <!-- Display Fields from Other Table (Read-only) -->
                 <div class="mb-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
                   <h4 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
-                    💼 Supplier Information
+                    ðŸ’¼ Supplier Information
                   </h4>
 
                   <div class="grid grid-cols-2 gap-4">
@@ -66,7 +66,7 @@
   :key="supplier.id"
   :value="supplier.id"
 >
-  {{ supplier.name }} — 📞 {{ supplier.phone_number }}
+  {{ supplier.name }} â€” ðŸ“ž {{ supplier.phone_number }}
 </option>
 
                       </select>
@@ -113,7 +113,7 @@
                 <!-- Expense Entry Fields (To be submitted) -->
                 <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm mb-4">
                   <h4 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
-                    💵 Payment Details
+                    ðŸ’µ Payment Details
                   </h4>
                   <div class="grid grid-cols-2 gap-4">
                     <div class="mb-4">
@@ -342,3 +342,4 @@ onUnmounted(() => {
     document.body.style.overflow = '';
 });
 </script>
+

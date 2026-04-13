@@ -121,7 +121,7 @@ const handleUpload = (type) => {
   <Head title="Import & Export" />
 
   <AppLayout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 dark:from-gray-900 dark:to-gray-950">
       <div>
         <!-- Header -->
         <div class="mb-6 flex items-center gap-4">
@@ -304,3 +304,4 @@ const sections = [
   { name: "products", title: "Products" },
 ];
 </script>
+

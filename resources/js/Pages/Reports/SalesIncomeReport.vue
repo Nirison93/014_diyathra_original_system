@@ -2,7 +2,7 @@
   <Head title="Order History Report" />
 
   <AppLayout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 dark:from-gray-900 dark:to-gray-950">
       <div>
         <!-- Header with Date Filter -->
         <div

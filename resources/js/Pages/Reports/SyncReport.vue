@@ -1,7 +1,7 @@
 <template>
   <Head title="Sync Report" />
   <AppLayout>
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 dark:from-gray-900 dark:to-gray-950">
       <div>
         <!-- Header with Date/User Filter -->
         <div class="flex items-center justify-between mb-8">

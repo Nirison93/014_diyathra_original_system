@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -33,7 +33,7 @@
                   as="h3"
                   class="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent"
                 >
-                  ⚠️ Delete Type
+                  âš ï¸ Delete Type
                 </DialogTitle>
                 <button
                   type="button"
@@ -110,7 +110,7 @@
                   :disabled="form.processing"
                   class="px-6 py-2.5 text-sm font-medium text-white bg-red-600 rounded-full hover:bg-red-700 hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50"
                 >
-                  {{ form.processing ? "🗑️ Deleting..." : "🗑️ Delete Type" }}
+                  {{ form.processing ? "ðŸ—‘ï¸ Deleting..." : "ðŸ—‘ï¸ Delete Type" }}
                 </button>
               </div>
             </DialogPanel>
@@ -152,3 +152,4 @@ const closeModal = () => {
   emit("update:open", false);
 };
 </script>
+

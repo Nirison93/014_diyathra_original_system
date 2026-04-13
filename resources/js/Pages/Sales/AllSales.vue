@@ -451,6 +451,8 @@ const props = defineProps({
 
 const search = ref(props.filters?.search || "");
 let searchDebounceTimer = null;
+const salesHistoryRoute = () =>
+  route().has("sales.all") ? route("sales.all") : route("sales.index");
 
 watch(search, (value) => {
   if (searchDebounceTimer) {
@@ -459,7 +461,7 @@ watch(search, (value) => {
 
   searchDebounceTimer = setTimeout(() => {
     router.get(
-      route("sales.all"),
+      salesHistoryRoute(),
       { search: value || undefined },
       {
         preserveState: true,

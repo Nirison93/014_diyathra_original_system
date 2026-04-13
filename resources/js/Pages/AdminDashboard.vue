@@ -122,14 +122,14 @@ import { Head, Link } from '@inertiajs/vue3';
                     </Link>
 
                     <!-- Product Transfer Requests (PTR) Card -->
-                    <Link
+                    <!-- <Link
                         :href="route('product-transfer-requests.index')"
                         class="group bg-gradient-to-br from-lime-600 to-lime-700 hover:from-lime-700 hover:to-lime-800 p-6 rounded-lg text-white transition transform hover:scale-105 shadow-lg"
                     >
                         <div class="text-3xl mb-2">📤</div>
                         <div class="font-semibold text-lg">Product Transfer</div>
                         <div class="text-sm text-lime-200 group-hover:text-lime-100">Transfer products</div>
-                    </Link>
+                    </Link> -->
                 </div>
             </div>
 

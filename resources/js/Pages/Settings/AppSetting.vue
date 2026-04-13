@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
     <!-- Main Container -->
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 dark:from-gray-900 dark:to-gray-950">
       <!-- Header Section with Back Button and Title -->
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
