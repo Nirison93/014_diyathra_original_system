@@ -250,9 +250,6 @@ class SaleController extends Controller
                     -$item['quantity'], // Negative for stock reduction
                     $request->invoice_no
                 );
-
-                // Log to Shop Inventory
-                StoreInventoryController::logSale($item['product_id'], $item['quantity'], $sale->id);
             }
 
             // Create a single income record for the actual sale amount (not payment amount)

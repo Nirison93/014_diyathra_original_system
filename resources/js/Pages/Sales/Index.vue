@@ -1979,7 +1979,8 @@ const printReceipt = () => {
     return;
   }
 
-  const receiptContent = `
+
+    const receiptContent = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -2004,7 +2005,7 @@ const printReceipt = () => {
                 }
                 body {
                     font-family: 'Poppins', Poppins, monospace;
-                  font-size: 12px;
+                    font-size: 13px;
                     width: ${width};
                     margin: 0;
                     padding: 3mm 5mm;
@@ -2016,8 +2017,8 @@ const printReceipt = () => {
                     print-color-adjust: exact;
                 }
                 .receipt-container {
-                  width: 100%;
-                  max-width: ${width};
+                    width: 100%;
+                    max-width: 80mm;
                 }
                 .header {
                     text-align: center;
@@ -2026,14 +2027,14 @@ const printReceipt = () => {
                     border-bottom: 2px dashed #000;
                 }
                 .header h1 {
-                  font-size: 16px;
+                    font-size: 18px;
                     font-weight: 900;
                     margin-bottom: 4px;
                     text-transform: uppercase;
                     color: #000;
                 }
                 .header p {
-                  font-size: 11px;
+                    font-size: 12px;
                     margin: 1px 0;
                     line-height: 1.3;
                     font-weight: 600;
@@ -2041,7 +2042,7 @@ const printReceipt = () => {
                 }
                 .info {
                     margin: 8px 0;
-                  font-size: 11px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #000;
                 }
@@ -2056,7 +2057,7 @@ const printReceipt = () => {
                 .items-table {
                     width: 100%;
                     margin: 8px 0;
-                  font-size: 11px;
+                    font-size: 12px;
                     border-collapse: collapse;
                     font-weight: 600;
                     color: #000;
@@ -2067,15 +2068,6 @@ const printReceipt = () => {
                     padding: 3px 2px;
                     font-weight: 800;
                     color: #000;
-                }
-                .items-table th.item-price {
-                  text-align: center;
-                }
-                .items-table th.item-total {
-                  text-align: right;
-                }
-                     .items-table tr th {
-                   font-size: 11px;
                 }
                 .items-table td {
                     padding: 3px 2px;
@@ -2102,7 +2094,7 @@ const printReceipt = () => {
                 }
                 .totals {
                     margin-top: 8px;
-                  font-size: 11px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #000;
                 }
@@ -2115,7 +2107,7 @@ const printReceipt = () => {
                     color: #000;
                 }
                 .total-row.grand {
-                  font-size: 14px;
+                    font-size: 15px;
                     font-weight: 900;
                     border-top: 2px solid #000;
                     border-bottom: 2px solid #000;
@@ -2128,7 +2120,7 @@ const printReceipt = () => {
                     margin-top: 12px;
                     padding-top: 8px;
                     border-top: 2px dashed #000;
-                  font-size: 11px;
+                    font-size: 12px;
                     font-weight: 600;
                     color: #000;
                 }
@@ -2142,35 +2134,37 @@ const printReceipt = () => {
         <body>
             <div class="receipt-container">
                 <div class="header">
-                    <div style="margin-bottom:6px;"><img src="/images/logo.png" alt="logo" style="max-height:40px; max-width:100%; object-fit:contain;"/></div>
+                    ${bill.logo_path
+            ? `<div style="margin-bottom:6px;"><img src="/storage/${bill.logo_path}" alt="logo" style="max-height:40px; max-width:100%; object-fit:contain;"/></div>`
+            : ""
+        }
                     <h1>${bill.company_name || "SALES RECEIPT"}</h1>
                     ${bill.address ? `<p>${bill.address}</p>` : ""}
-                    ${
-                      bill.mobile_1 || bill.mobile_2
-                        ? `<p>Tel: ${[bill.mobile_1, bill.mobile_2]
-                            .filter(Boolean)
-                            .join(" / ")}</p>`
-                        : ""
-                    }
+                    ${bill.mobile_1 || bill.mobile_2
+            ? `<p>Tel: ${[bill.mobile_1, bill.mobile_2]
+                .filter(Boolean)
+                .join(" / ")}</p>`
+            : ""
+        }
                     ${bill.email ? `<p>${bill.email}</p>` : ""}
                     ${bill.website_url ? `<p>${bill.website_url}</p>` : ""}
                 </div>
 
                 <div class="info">
                     <div class="info-row">
-                        <span><strong>බිල් අංකය:</strong></span>
+                        <span><strong>Invoice:</strong></span>
                         <span>${completedInvoice.value}</span>
                     </div>
                     <div class="info-row">
-                        <span><strong>දිනය:</strong></span>
+                        <span><strong>Date:</strong></span>
                         <span>${completedSaleDate.value}</span>
                     </div>
                     <div class="info-row">
-                        <span><strong>ගනුදෙනුකරු:</strong></span>
+                        <span><strong>Customer:</strong></span>
                         <span>${completedCustomer.value}</span>
                     </div>
                     <div class="info-row">
-                        <span><strong>ගෙවීමේ ක්‍රමය:</strong></span>
+                        <span><strong>Payment:</strong></span>
                         <span>${getPaymentTypeText(completedPaymentType.value)}</span>
                     </div>
                 </div>
@@ -2179,88 +2173,84 @@ const printReceipt = () => {
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th class="item-name">භාණ්ඩය</th>
-                      <th class="item-price">ප්‍රමාණය * එකක මිල</th>
-                            <th class="item-total">එකතුව</th>
+                            <th class="item-name">Item</th>
+                            <th class="item-qty">Qty</th>
+                            <th class="item-price">Price</th>
+                            <th class="item-total">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${completedItems.value
-                          .map(
-                            (item) => `
+            .map(
+                (item) => `
                             <tr>
                                 <td class="item-name">${item.product_name}</td>
-                        <td class="item-price">${item.quantity} * ${(item.price||0).toFixed(2)}</td>
+                                <td class="item-qty">${item.quantity}</td>
+                                <td class="item-price">${(item.price || 0).toFixed(2)}</td>
                                 <td class="item-total">${(
-                                  (item.price||0) * item.quantity
-                                ).toFixed(2)}</td>
+                        (item.price || 0) * item.quantity
+                    ).toFixed(2)}</td>
                             </tr>
                         `
-                          )
-                          .join("")}
+            )
+            .join("")}
                     </tbody>
                 </table>
 
 
-               <div class="totals">
-    <div class="total-row">
-        <span>උප එකතුව:</span>
-        <span>${page.props.currency || "රු"} ${completedTotal.value}</span>
-    </div>
-
-    ${
-      parseFloat(completedProductDiscount.value) > 0
-        ? `
-    <div class="total-row" style="color: green;">
-        <span>භාණ්ඩ වට්ටම්:</span>
-        <span>- ${page.props.currency || "රු"} ${completedProductDiscount.value}</span>
-    </div>
-    `
-        : ""
-    }
-
-    ${
-      parseFloat(completedDiscount.value) > 0
-        ? `
-    <div class="total-row">
-        <span>අමතර වට්ටම්:</span>
-        <span>- ${page.props.currency || "රු"} ${completedDiscount.value}</span>
-    </div>
-    `
-        : ""
-    }
-
-    <div class="total-row grand">
-        <span>මුළු එකතුව:</span>
-        <span>${page.props.currency || "රු"} ${completedNetAmount.value}</span>
-    </div>
-
-    <div class="total-row">
-        <span>ගෙවූ මුදල:</span>
-        <span>${page.props.currency || "රු"} ${completedPaid.value}</span>
-    </div>
-
-    <div class="total-row" style="font-weight: bold;">
-        <span>
-            ${
-              parseFloat(completedBalance.value) > 0
-                ? "ඉතිරි ගෙවිය යුතු මුදල:"
-                : "වෙනස් මුදල:"
-            }
-        </span>
-
-        <span>${page.props.currency || "රු"} ${Math.abs(
-          parseFloat(completedBalance.value)
+                <div class="totals">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>${page.props.currency || "Rs."} ${completedTotal.value
+        }</span>
+                    </div>
+                    ${parseFloat(completedProductDiscount.value) > 0
+            ? `
+                    <div class="total-row" style="color: green;">
+                        <span>Product Discounts:</span>
+                        <span>- ${page.props.currency || "Rs."} ${completedProductDiscount.value
+            }</span>
+                    </div>
+                    `
+            : ""
+        }
+                    ${parseFloat(completedDiscount.value) > 0
+            ? `
+                    <div class="total-row">
+                        <span>Custom Discount:</span>
+                        <span>- ${page.props.currency || "Rs."} ${completedDiscount.value
+            }</span>
+                    </div>
+                    `
+            : ""
+        }
+                    <div class="total-row grand">
+                        <span>GRAND TOTAL:</span>
+                        <span>${page.props.currency || "Rs."} ${completedNetAmount.value
+        }</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Paid Amount:</span>
+                        <span>${page.props.currency || "Rs."} ${completedPaid.value
+        }</span>
+                    </div>
+                    <div class="total-row" style="font-weight: bold;">
+                        <span>${parseFloat(completedBalance.value) > 0
+            ? "Balance Due:"
+            : "Change:"
+        }</span>
+                        <span>${page.props.currency || "Rs."} ${Math.abs(
+            parseFloat(completedBalance.value)
         ).toFixed(2)}</span>
-    </div>
-</div>
+                    </div>
+                </div>
 
                 <div class="footer">
 
                     <p>
                         ${bill.footer_description || "Please visit us again!"}
                         </p>
-
+                    <p style="margin-top: 6px; font-size: 9px;">Powered by JAAN Network (PVT) Ltd</p>
                 </div>
             </div>
 
@@ -2292,8 +2282,8 @@ const printReceipt = () => {
         </html>
     `;
 
-  printWindow.document.write(receiptContent);
-  printWindow.document.close();
+    printWindow.document.write(receiptContent);
+    printWindow.document.close();
 };
 
 // Close modal and reload
