@@ -1,6 +1,6 @@
-<template>
+﻿<template>
     <TransitionRoot as="template" :show="open">
-      <Dialog class="relative z-10" @close="$emit('update:open', false)">
+      <Dialog class="relative z-10" @close="() => {}">
         <!-- Modal Overlay -->
         <TransitionChild
           as="template"
@@ -186,3 +186,4 @@
     emit('update:open', false);
   };
   </script>
+

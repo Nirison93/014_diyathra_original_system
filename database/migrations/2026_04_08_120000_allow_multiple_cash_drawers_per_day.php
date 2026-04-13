@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cash_drawers', function (Blueprint $table) {
+            // Keep a standalone index for the FK before dropping the composite unique key.
+            $table->index('user_id', 'cash_drawers_user_id_index');
+
             // Remove one-record-per-day constraint to allow multiple open/close sessions per user per day
-            $table->dropUnique(['user_id', 'date']);
+            $table->dropUnique('cash_drawers_user_id_date_unique');
         });
     }
 
@@ -23,7 +26,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cash_drawers', function (Blueprint $table) {
-            $table->unique(['user_id', 'date']);
+            $table->unique(['user_id', 'date'], 'cash_drawers_user_id_date_unique');
+            $table->dropIndex('cash_drawers_user_id_index');
         });
     }
 };

@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -93,7 +93,7 @@
                           :key="cat.id"
                           :value="cat.id"
                         >
-                          {{ cat.hierarchy_string ? cat.hierarchy_string + ' → ' + cat.name : cat.name }}
+                          {{ cat.hierarchy_string ? cat.hierarchy_string + ' â†’ ' + cat.name : cat.name }}
                         </option>
                       </select>
                       <p v-if="form.errors.parent_id" class="mt-1 text-sm text-red-500">
@@ -207,3 +207,4 @@ const closeModal = () => {
   form.clearErrors();
 };
 </script>
+

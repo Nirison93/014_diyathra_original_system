@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="show" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-50">
+    <Dialog as="div" @close="() => {}" class="relative z-50">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -31,7 +31,7 @@
                 as="h3"
                 class="text-2xl font-bold text-red-600"
               >
-                ⚠️ Delete Supplier Payment
+                âš ï¸ Delete Supplier Payment
 
               </DialogTitle>
 
@@ -122,3 +122,4 @@ onUnmounted(() => {
     document.body.style.overflow = '';
 });
 </script>
+

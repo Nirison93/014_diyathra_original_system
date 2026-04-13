@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="open" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-10">
+    <Dialog as="div" @close="() => {}" class="relative z-10">
       <!-- Backdrop -->
       <TransitionChild
         as="template"
@@ -267,3 +267,4 @@ const closeModal = () => {
   form.clearErrors();
 };
 </script>
+

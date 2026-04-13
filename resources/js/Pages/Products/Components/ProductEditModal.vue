@@ -363,7 +363,7 @@
           </div>
 
           <!-- Conversion Rates Section -->
-          
+
           <!-- Additional Options Section -->
           <div class="mb-6">
             <h3
@@ -782,7 +782,7 @@ watch(
 // Computed properties for filtered Brand and Category options
 // Convert brands to searchable format
 const brandOptions = computed(() => {
-  return brands.value.map(brand => ({
+  return props.brands.map(brand => ({
     id: brand.id,
     label: brand.name,
     name: brand.name
@@ -791,7 +791,7 @@ const brandOptions = computed(() => {
 
 // Convert categories to searchable format
 const categoryOptions = computed(() => {
-  return categories.value.map(category => ({
+  return props.categories.map(category => ({
     id: category.id,
     label: category.hierarchy_string
       ? category.hierarchy_string + ' → ' + category.name

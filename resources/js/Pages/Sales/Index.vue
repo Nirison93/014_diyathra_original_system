@@ -787,7 +787,7 @@
                 </div>
 
                 <!-- Quantity Input -->
-                <div class="mt-3 pt-3 border-t border-gray-100">
+                <!-- <div class="mt-3 pt-3 border-t border-gray-100">
                   <div class="flex items-center gap-2">
                     <input
                       type="number"
@@ -803,7 +803,7 @@
                       Add
                     </button>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -873,17 +873,33 @@
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Payment Method</label
-            >
-            <select
-              v-model.number="paymentMethod"
-              class="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-[5px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option :value="0">💵 Cash</option>
-              <option :value="1">💳 Card</option>
-              <!-- <option :value="2">📝 Credit</option> -->
-            </select>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                @click="selectPaymentMethod(0)"
+                :class="[
+                  'px-4 py-2.5 rounded-[5px] text-sm font-semibold transition border',
+                  paymentMethod === 0
+                    ? 'bg-green-600 border-green-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                ]"
+              >
+                Cash
+              </button>
+              <button
+                type="button"
+                @click="selectPaymentMethod(1)"
+                :class="[
+                  'px-4 py-2.5 rounded-[5px] text-sm font-semibold transition border',
+                  paymentMethod === 1
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                ]"
+              >
+                Card
+              </button>
+            </div>
           </div>
 
           <div>
@@ -891,13 +907,50 @@
               >Amount ({{ page.props.currency || "Rs." }})</label
             >
             <input
-              type="number"
-              v-model.number="paymentAmount"
-              min="0"
-              :max="balance > 0 ? balance : 0"
+              type="text"
+              :value="paymentAmount"
+              @input="onPaymentAmountInput"
+              @keydown.enter.prevent="finalizePaymentAmount"
+              @keydown.tab="finalizePaymentAmount"
+              inputmode="decimal"
               class="w-full px-4 py-3 bg-white text-gray-800 border border-gray-300 rounded-[5px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg"
               placeholder="0.00"
             />
+          </div>
+
+          <div>
+            <div class="grid grid-cols-5 gap-2">
+              <button
+                v-for="value in [100, 500, 1000, 2000, 5000]"
+                :key="value"
+                type="button"
+                @click="addQuickAmount(value)"
+                class="py-2 rounded-[5px] border border-gray-300 bg-gray-50 text-gray-700 text-sm font-semibold hover:bg-gray-100 transition"
+              >
+                {{ value }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                v-for="digit in ['1','2','3','4','5','6','7','8','9','C','0','←']"
+                :key="digit"
+                type="button"
+                @click="handleKeypadPress(digit)"
+                :class="[
+                  'py-3 rounded-[5px] font-bold transition',
+                  digit === 'C'
+                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    : digit === '←'
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                    : 'bg-gray-800 hover:bg-gray-900 text-white'
+                ]"
+              >
+                {{ digit }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1187,7 +1240,7 @@ const showProductModal = ref(false);
 const showQuickAddCustomer = ref(false);
 const showClosingModal = ref(false);
 const paymentMethod = ref(0);
-const paymentAmount = ref(0);
+const paymentAmount = ref("");
 const completedInvoice = ref("");
 const completedSaleDate = ref("");
 const completedCustomer = ref("");
@@ -1552,30 +1605,32 @@ const clearCart = () => {
 
 // Add payment
 const addPayment = async () => {
-  if (paymentAmount.value <= 0) {
+  const parsedAmount = parseFloat(paymentAmount.value);
+
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
     alert("Please enter a valid amount");
     return;
   }
 
   const remaining = netAmount.value - totalPaid.value;
   // Allow overpayment only for cash
-  if (paymentMethod.value !== 0 && paymentAmount.value > remaining) {
+  if (paymentMethod.value !== 0 && parsedAmount > remaining) {
     alert(`Amount cannot exceed remaining balance: Rs. ${(remaining||0).toFixed(2)}`);
     return;
   }
 
   form.payments.push({
     payment_type: paymentMethod.value,
-    amount: parseFloat(paymentAmount.value),
+    amount: parsedAmount,
   });
 
   await logActivity("create", "sales", {
     action: "add_payment",
     payment_type: getPaymentTypeText(paymentMethod.value),
-    amount: paymentAmount.value,
+    amount: parsedAmount,
   });
 
-  paymentAmount.value = 0;
+  paymentAmount.value = "";
   paymentMethod.value = 0;
 
   // Auto-close modal if fully paid or overpaid (for cash)
@@ -1601,7 +1656,64 @@ const openPaymentModal = () => {
     return;
   }
   showPaymentModal.value = true;
-  paymentAmount.value = balance.value > 0 ? balance.value : 0;
+  paymentAmount.value = balance.value > 0 ? balance.value.toFixed(2) : "";
+};
+
+const selectPaymentMethod = (method) => {
+  paymentMethod.value = method;
+};
+
+const normalizeAmountInput = (value) => {
+  let sanitized = String(value ?? "").replace(/[^\d.]/g, "");
+  const firstDot = sanitized.indexOf(".");
+  if (firstDot !== -1) {
+    sanitized =
+      sanitized.slice(0, firstDot + 1) + sanitized.slice(firstDot + 1).replace(/\./g, "");
+  }
+  return sanitized;
+};
+
+const onPaymentAmountInput = (event) => {
+  paymentAmount.value = normalizeAmountInput(event.target.value);
+};
+
+const finalizePaymentAmount = () => {
+  const numericValue = parseFloat(paymentAmount.value);
+
+  if (!Number.isFinite(numericValue)) {
+    paymentAmount.value = "";
+    return;
+  }
+
+  if (numericValue < 100) {
+    paymentAmount.value = "100";
+    return;
+  }
+
+  if (numericValue > 5000) {
+    paymentAmount.value = "5000";
+    return;
+  }
+
+  paymentAmount.value = String(numericValue);
+};
+
+const addQuickAmount = (value) => {
+  paymentAmount.value = String(value);
+};
+
+const handleKeypadPress = (key) => {
+  if (key === "C") {
+    paymentAmount.value = "";
+    return;
+  }
+
+  if (key === "←") {
+    paymentAmount.value = paymentAmount.value.slice(0, -1);
+    return;
+  }
+
+  paymentAmount.value = `${paymentAmount.value}${key}`;
 };
 
 // Product modal methods

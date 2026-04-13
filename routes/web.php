@@ -200,6 +200,7 @@ Route::middleware(['auth', 'role:0,3,4'])->group(function () {
 Route::middleware(['auth', 'role:0,1,2'])->group(function () {
     // Sales Management
     Route::resource('sales', SaleController::class, ['only' => ['index', 'store', 'update', 'destroy']]);
+    Route::get('/sales-history', [SaleController::class, 'salesHistory'])->name('sales.all');
     Route::post('/cash-drawer/open', [CashDrawerController::class, 'open'])->name('cash-drawer.open');
     Route::post('/cash-drawer/close', [CashDrawerController::class, 'close'])->name('cash-drawer.close');
 });

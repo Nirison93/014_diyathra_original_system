@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <TransitionRoot appear :show="show" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-50">
+    <Dialog as="div" @close="() => {}" class="relative z-50">
       <TransitionChild
         as="template"
         enter="duration-300 ease-out"
@@ -185,3 +185,4 @@ onUnmounted(() => {
     document.body.style.overflow = '';
 });
 </script>
+
