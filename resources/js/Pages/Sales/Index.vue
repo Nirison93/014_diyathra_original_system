@@ -34,7 +34,7 @@
           :disabled="openingForm.processing"
           class="mt-5 w-full rounded-[5px] bg-blue-600 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
         >
-          {{ openingForm.processing ? 'Saving...' : 'Save Opening Balance' }}
+          {{ openingForm.processing ? 'Saving...' : 'Save Opening Balance (Enter)' }}
         </button>
       </div>
     </div>
@@ -49,12 +49,12 @@
                 @click="goToShopsTab"
                 class="px-6 py-2.5 rounded-[5px] font-medium text-sm bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all duration-200"
               >
-                ← Back
+                ← Back (F1)
               </button>
               <h1 class="text-3xl font-bold text-black">Sales</h1>
             </div>
             <p class="text-gray-400">
-              Create new invoice (F9: Complete | F8: Clear | ESC: Focus Barcode)
+              Create new invoice (F1: Back | F2: Add Barcode | F3: Products | F4: Payment | F8: Clear | F9: Complete | ESC: Close/Focus)
             </p>
           </div>
           <div class="text-right">
@@ -65,7 +65,7 @@
               @click="showClosingModal = true"
               class="mt-3 rounded-[5px] bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
             >
-              Close Drawer
+              Close Drawer (F10)
             </button>
           </div>
         </div>
@@ -122,7 +122,7 @@
                 :disabled="!selectedQuotationId"
                 class="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-[5px] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                📥 Load Quotation
+                📥 Load Quotation (F7)
               </button>
             </div>
           </div>
@@ -152,7 +152,7 @@
                 type="button"
                 class="px-4 bg-white hover:bg-blue-50 text-blue-700 font-semibold rounded-lg transition"
               >
-                Add
+                Add (F2)
               </button>
             </div>
           </div>
@@ -182,7 +182,7 @@
                   type="button"
                   @click="openCustomerModal"
                   class="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition"
-                  title="Add New Customer"
+                  title="Add New Customer (F6)"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +266,7 @@
               type="button"
               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-[5px] transition"
             >
-              🔍 Browse Products
+              🔍 Browse Products (F3)
             </button>
           </div>
         </div>
@@ -558,7 +558,7 @@
                 :disabled="form.items.length === 0"
                 class="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-200 disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-lg transition text-lg shadow-lg"
               >
-                💳 Add Payment
+                💳 Add Payment (F4)
               </button>
 
               <!-- Submit Button -->
@@ -570,13 +570,15 @@
                 class="mt-3 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-4 px-4 rounded-lg transition text-lg shadow-lg"
               >
                 <span v-if="form.processing">⏳ Processing...</span>
-                <span v-else>✅ Complete Salesd (F9)</span>
+                <span v-else>✅ Complete Sale (F9)</span>
               </button>
 
               <!-- Quick Actions -->
               <div class="mt-4 text-xs text-gray-400 text-center">
                 <p>Keyboard Shortcuts:</p>
-                <p>F9: Complete Sale | F8: Clear Cart | ESC: Focus Barcode</p>
+                <p>F1: Back | F2: Add Barcode | F3: Products | F4: Payment/Add Payment</p>
+                <p>F6: Add Customer | F7: Load Quotation | F8: Clear Cart | F9: Complete Sale</p>
+                <p>F10: Close Drawer | ENTER: Save Opening/Closing | ESC: Close Modal / Focus Barcode</p>
               </div>
             </div>
           </div>
@@ -600,7 +602,7 @@
               @click="closeProductModal"
               class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all shadow-sm"
             >
-              Done
+              Done (Esc/F3)
             </button>
           </div>
         </div>
@@ -959,13 +961,13 @@
             @click="addPayment"
             class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-[5px] transition"
           >
-            Add Payment
+            Add Payment (F4)
           </button>
           <button
             @click="showPaymentModal = false"
             class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-[5px] transition"
           >
-            Close
+            Close (Esc)
           </button>
         </div>
       </div>
@@ -1003,13 +1005,13 @@
               @click="printAndClose"
               class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition shadow-lg"
             >
-              PRINT RECEIPT
+              PRINT RECEIPT (F9)
             </button>
             <button
               @click="closeModal"
               class="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition shadow-lg"
             >
-              CLOSE
+              CLOSE (Esc)
             </button>
           </div>
         </div>
@@ -1065,14 +1067,14 @@
             @click="showClosingModal = false"
             class="flex-1 rounded-[5px] bg-gray-600 px-4 py-2.5 font-semibold text-white transition hover:bg-gray-700"
           >
-            Cancel
+            Cancel (Esc)
           </button>
           <button
             @click="submitClosingBalance"
             :disabled="closingForm.processing"
             class="flex-1 rounded-[5px] bg-amber-500 px-4 py-2.5 font-semibold text-white transition hover:bg-amber-600 disabled:opacity-60"
           >
-            {{ closingForm.processing ? 'Saving...' : 'Save Closing Balance' }}
+            {{ closingForm.processing ? 'Saving...' : 'Save Closing Balance (Enter/F10)' }}
           </button>
         </div>
       </div>
@@ -2309,6 +2311,16 @@ const printAndClose = () => {
 
 // Keyboard shortcuts
 const handleKeyDown = (event) => {
+  if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.altKey || event.metaKey) {
+    return;
+  }
+
+  const isF1 = event.key === 'F1' || event.keyCode === 112 || event.code === 'F1';
+  const isF2 = event.key === 'F2' || event.keyCode === 113 || event.code === 'F2';
+  const isF3 = event.key === 'F3' || event.keyCode === 114 || event.code === 'F3';
+  const isF4 = event.key === 'F4' || event.keyCode === 115 || event.code === 'F4';
+  const isF6 = event.key === 'F6' || event.keyCode === 117 || event.code === 'F6';
+  const isF7 = event.key === 'F7' || event.keyCode === 118 || event.code === 'F7';
   // Check if F8 is pressed using multiple methods
   const isF8 = event.key === 'F8' ||
                event.keyCode === 119 ||
@@ -2319,10 +2331,86 @@ const handleKeyDown = (event) => {
                event.keyCode === 120 ||
                event.code === 'F9';
 
+  const isF10 = event.key === 'F10' || event.keyCode === 121 || event.code === 'F10';
+  const isEnter = event.key === 'Enter' || event.keyCode === 13 || event.code === 'Enter';
+
   // Check if ESC is pressed
   const isESC = event.key === 'Escape' ||
                 event.keyCode === 27 ||
                 event.code === 'Escape';
+
+  if (isF1) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    goToShopsTab();
+    return false;
+  }
+
+  if (isF2) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (barcodeInput.value.trim()) {
+      addByBarcode();
+    } else {
+      barcodeField.value?.focus();
+      barcodeField.value?.select();
+    }
+
+    return false;
+  }
+
+  if (isF3) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (showProductModal.value) {
+      closeProductModal();
+    } else {
+      openProductModal();
+    }
+
+    return false;
+  }
+
+  if (isF4) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (showPaymentModal.value) {
+      addPayment();
+    } else {
+      openPaymentModal();
+    }
+
+    return false;
+  }
+
+  if (isF6) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    openCustomerModal();
+    return false;
+  }
+
+  if (isF7) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (selectedQuotationId.value) {
+      loadQuotationData();
+    }
+
+    return false;
+  }
 
   if (isF8) {
     // Completely prevent default and stop propagation
@@ -2330,12 +2418,7 @@ const handleKeyDown = (event) => {
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    // Don't trigger if user is actively typing in form fields (except barcode field)
-    const activeElement = document.activeElement;
-    const isInputField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeElement?.tagName);
-    const isBarcodeField = activeElement === barcodeField.value;
-
-    if ((!isInputField || isBarcodeField) && form.items.length > 0) {
+    if (form.items.length > 0) {
       clearCart();
     }
 
@@ -2348,23 +2431,70 @@ const handleKeyDown = (event) => {
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    // Don't trigger if user is actively typing in form fields (except barcode field)
-    const activeElement = document.activeElement;
-    const isInputField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeElement?.tagName);
-    const isBarcodeField = activeElement === barcodeField.value;
-
     // Check if sale can be completed (has items and payments, not already processing)
-    if ((!isInputField || isBarcodeField) && form.items.length > 0 && form.payments.length > 0 && !form.processing) {
+    if (showSuccessModal.value) {
+      printAndClose();
+    } else if (form.items.length > 0 && form.payments.length > 0 && !form.processing) {
       submitSale();
     }
 
     return false;
   }
 
+  if (isF10) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (showClosingModal.value) {
+      submitClosingBalance();
+    } else if (isCashDrawerOpen.value) {
+      showClosingModal.value = true;
+    }
+
+    return false;
+  }
+
+  if (isEnter) {
+    if (requiresOpeningBalance.value && openingForm.opening_balance !== null && openingForm.opening_balance !== "") {
+      event.preventDefault();
+      event.stopPropagation();
+      submitOpeningBalance();
+      return false;
+    }
+
+    if (showClosingModal.value && closingForm.closing_balance !== null && closingForm.closing_balance !== "") {
+      event.preventDefault();
+      event.stopPropagation();
+      submitClosingBalance();
+      return false;
+    }
+  }
+
   if (isESC) {
     // Prevent default ESC behavior
     event.preventDefault();
     event.stopPropagation();
+
+    if (showPaymentModal.value) {
+      showPaymentModal.value = false;
+      return false;
+    }
+
+    if (showProductModal.value) {
+      closeProductModal();
+      return false;
+    }
+
+    if (showQuickAddCustomer.value) {
+      showQuickAddCustomer.value = false;
+      return false;
+    }
+
+    if (showClosingModal.value) {
+      showClosingModal.value = false;
+      return false;
+    }
 
     // Focus the barcode field
     if (barcodeField.value) {
